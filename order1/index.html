@@ -35,7 +35,7 @@
                 source = audioCtx.createMediaElementSource(audio);
                 source.connect(analyser);
                 analyser.connect(audioCtx.destination);
-                analyser.fftSize = 30; // Количество полосок
+                analyser.fftSize = 50; // Количество полосок
                 dataArray = new Uint8Array(analyser.frequencyBinCount);
                 draw();
             }
@@ -67,4 +67,5 @@
     </script>
 </body>
 </html>
+
 
