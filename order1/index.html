@@ -5,17 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Твой момент</title>
     <style>
-        body { margin: 0; background: #000; color: #fff; display: flex; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; }
-        .container { text-align: center; width: 100%; max-width: 400px; }
-        canvas { width: 100%; height: 150px; margin-bottom: 20px; }
-        .play-btn { width: 80px; height: 80px; background: #fff; border-radius: 50%; border: none; cursor: pointer; font-size: 24px; transition: 0.3s; }
+        body { margin: 0; background: #0a0a0a; color: white; display: flex; align-items: center; justify-content: center; height: 100vh; font-family: 'Segoe UI', sans-serif; }
+        .container { text-align: center; background: #1a1a1a; padding: 40px; border-radius: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); width: 85%; max-width: 350px; border: 1px solid #333; }
+        canvas { width: 100%; height: 100px; margin-bottom: 20px; border-radius: 10px; }
+        .play-btn { width: 80px; height: 80px; background: white; border-radius: 50%; border: none; font-size: 24px; cursor: pointer; transition: 0.3s; margin-bottom: 20px; color: #000; box-shadow: 0 0 15px rgba(255,255,255,0.2); }
         .play-btn:active { transform: scale(0.9); }
+        p { opacity: 0.5; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; margin: 0; }
     </style>
 </head>
 <body>
     <div class="container">
         <canvas id="visualizer"></canvas>
         <button class="play-btn" id="btn">▶</button>
+        <p id="status">Нажми, чтобы слушать</p>
         <audio id="audio" src="audio.mp3"></audio>
     </div>
 
@@ -24,28 +26,29 @@
         const btn = document.getElementById('btn');
         const canvas = document.getElementById('visualizer');
         const canvasCtx = canvas.getContext('2d');
+        const status = document.getElementById('status');
 
         let audioCtx, analyser, source, dataArray;
 
         btn.onclick = () => {
             if (!audioCtx) {
-                // Инициализация при первом нажатии
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 analyser = audioCtx.createAnalyser();
                 source = audioCtx.createMediaElementSource(audio);
                 source.connect(analyser);
                 analyser.connect(audioCtx.destination);
-                analyser.fftSize = 50; // Количество полосок
+                analyser.fftSize = 128; 
                 dataArray = new Uint8Array(analyser.frequencyBinCount);
                 draw();
             }
-
             if (audio.paused) {
                 audio.play();
                 btn.innerText = '⏸';
+                status.innerText = 'Звучат моменты...';
             } else {
                 audio.pause();
                 btn.innerText = '▶';
+                status.innerText = 'Пауза';
             }
         };
 
@@ -54,18 +57,27 @@
             analyser.getByteFrequencyData(dataArray);
             canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
             
-            const barWidth = (canvas.width / dataArray.length) * 2.5;
+            const barWidth = (canvas.width / dataArray.length) * 2;
             let x = 0;
 
             for(let i = 0; i < dataArray.length; i++) {
-                const barHeight = dataArray[i] / 2;
-                canvasCtx.fillStyle = `rgb(255, 255, 255)`; // Цвет полосок
-                canvasCtx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
-                x += barWidth + 2;
+                const barHeight = dataArray[i] / 2.5;
+                
+                // Рисуем скругленные линии
+                canvasCtx.fillStyle = '#ffffff';
+                canvasCtx.beginPath();
+                // Располагаем по центру холста по вертикали
+                const y = (canvas.height - barHeight) / 2;
+                canvasCtx.roundRect(x, y, barWidth - 2, barHeight, 5); 
+                canvasCtx.fill();
+
+                x += barWidth;
             }
         }
+        audio.onended = () => {
+            btn.innerText = '▶';
+            status.innerText = 'Прослушано';
+        };
     </script>
 </body>
 </html>
-
-
