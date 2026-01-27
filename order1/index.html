@@ -5,77 +5,65 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Твой момент</title>
     <style>
-        body { margin: 0; background: #0a0a0a; color: white; display: flex; align-items: center; justify-content: center; height: 100vh; font-family: 'Segoe UI', sans-serif; }
-        .container { text-align: center; background: #1a1a1a; padding: 40px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 80%; max-width: 350px; border: 1px solid #333; }
-        .play-btn { width: 90px; height: 90px; background: white; border-radius: 50%; border: none; font-size: 30px; cursor: pointer; transition: 0.3s; margin-bottom: 25px; color: #0a0a0a; }
+        body { margin: 0; background: #000; color: #fff; display: flex; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; }
+        .container { text-align: center; width: 100%; max-width: 400px; }
+        canvas { width: 100%; height: 150px; margin-bottom: 20px; }
+        .play-btn { width: 80px; height: 80px; background: #fff; border-radius: 50%; border: none; cursor: pointer; font-size: 24px; transition: 0.3s; }
         .play-btn:active { transform: scale(0.9); }
-        .visualizer { display: flex; justify-content: center; align-items: flex-end; gap: 3px; height: 60px; margin-bottom: 20px; }
-        .bar { width: 4px; height: 5px; background: #fff; border-radius: 2px; transition: 0.2s; opacity: 0.6; }
-        .playing .bar { animation: dance 1.2s infinite ease-in-out; opacity: 1; }
-        
-        /* Разная задержка для каждой полоски для эффекта волны */
-        .bar:nth-child(1)  { animation-delay: 0.0s; }
-        .bar:nth-child(2)  { animation-delay: 0.2s; }
-        .bar:nth-child(3)  { animation-delay: 0.4s; }
-        .bar:nth-child(4)  { animation-delay: 0.6s; }
-        .bar:nth-child(5)  { animation-delay: 0.8s; }
-        .bar:nth-child(6)  { animation-delay: 1.0s; }
-        .bar:nth-child(7)  { animation-delay: 0.8s; }
-        .bar:nth-child(8)  { animation-delay: 0.6s; }
-        .bar:nth-child(9)  { animation-delay: 0.4s; }
-        .bar:nth-child(10) { animation-delay: 0.2s; }
-        .bar:nth-child(11) { animation-delay: 0.0s; }
-
-        @keyframes dance { 
-            0%, 100% { height: 5px; } 
-            50% { height: 50px; } 
-        }
-        p { opacity: 0.6; font-size: 14px; letter-spacing: 1px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="visualizer" id="viz">
-            <div class="bar"></div>
-            <div class="bar"></div>
-            <div class="bar"></div>
-            <div class="bar"></div>
-            <div class="bar"></div>
-            <div class="bar"></div>
-            <div class="bar"></div>
-            <div class="bar"></div>
-            <div class="bar"></div>
-            <div class="bar"></div>
-            <div class="bar"></div>
-        </div>
+        <canvas id="visualizer"></canvas>
         <button class="play-btn" id="btn">▶</button>
-        <p id="status">НАЖМИ, ЧТОБЫ УСЛЫШАТЬ</p>
-        <audio id="track" src="audio.mp3"></audio>
+        <audio id="audio" src="audio.mp3"></audio>
     </div>
 
     <script>
+        const audio = document.getElementById('audio');
         const btn = document.getElementById('btn');
-        const track = document.getElementById('track');
-        const viz = document.getElementById('viz');
+        const canvas = document.getElementById('visualizer');
+        const canvasCtx = canvas.getContext('2d');
+
+        let audioCtx, analyser, source, dataArray;
 
         btn.onclick = () => {
-            if (track.paused) {
-                track.play();
+            if (!audioCtx) {
+                // Инициализация при первом нажатии
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioCtx.createAnalyser();
+                source = audioCtx.createMediaElementSource(audio);
+                source.connect(analyser);
+                analyser.connect(audioCtx.destination);
+                analyser.fftSize = 64; // Количество полосок
+                dataArray = new Uint8Array(analyser.frequencyBinCount);
+                draw();
+            }
+
+            if (audio.paused) {
+                audio.play();
                 btn.innerText = '⏸';
-                viz.classList.add('playing');
-                document.getElementById('status').innerText = 'ЗВУЧИТ ПАМЯТЬ...';
             } else {
-                track.pause();
+                audio.pause();
                 btn.innerText = '▶';
-                viz.classList.remove('playing');
-                document.getElementById('status').innerText = 'ПАУЗА';
             }
         };
-        track.onended = () => {
-            btn.innerText = '▶';
-            viz.classList.remove('playing');
-            document.getElementById('status').innerText = 'ПРОСЛУШАНО';
-        };
+
+        function draw() {
+            requestAnimationFrame(draw);
+            analyser.getByteFrequencyData(dataArray);
+            canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const barWidth = (canvas.width / dataArray.length) * 2.5;
+            let x = 0;
+
+            for(let i = 0; i < dataArray.length; i++) {
+                const barHeight = dataArray[i] / 2;
+                canvasCtx.fillStyle = `rgb(255, 255, 255)`; // Цвет полосок
+                canvasCtx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+                x += barWidth + 2;
+            }
+        }
     </script>
 </body>
 </html>
