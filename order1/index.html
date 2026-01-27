@@ -6,15 +6,29 @@
     <title>Твой момент</title>
     <style>
         body { margin: 0; background: #0a0a0a; color: white; display: flex; align-items: center; justify-content: center; height: 100vh; font-family: 'Segoe UI', sans-serif; }
-        .container { text-align: center; background: #1a1a1a; padding: 40px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 80%; max-width: 320px; border: 1px solid #333; }
-        .play-btn { width: 90px; height: 90px; background: white; border-radius: 50%; border: none; font-size: 30px; cursor: pointer; transition: 0.3s; margin-bottom: 25px; }
+        .container { text-align: center; background: #1a1a1a; padding: 40px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 80%; max-width: 350px; border: 1px solid #333; }
+        .play-btn { width: 90px; height: 90px; background: white; border-radius: 50%; border: none; font-size: 30px; cursor: pointer; transition: 0.3s; margin-bottom: 25px; color: #0a0a0a; }
         .play-btn:active { transform: scale(0.9); }
-        .visualizer { display: flex; justify-content: center; align-items: flex-end; gap: 4px; height: 50px; margin-bottom: 20px; }
-        .bar { width: 5px; height: 10px; background: #fff; border-radius: 3px; transition: 0.2s; }
-        .playing .bar { animation: dance 1s infinite ease-in-out; }
+        .visualizer { display: flex; justify-content: center; align-items: flex-end; gap: 3px; height: 60px; margin-bottom: 20px; }
+        .bar { width: 4px; height: 5px; background: #fff; border-radius: 2px; transition: 0.2s; opacity: 0.6; }
+        .playing .bar { animation: dance 1.2s infinite ease-in-out; opacity: 1; }
+        
+        /* Разная задержка для каждой полоски для эффекта волны */
+        .bar:nth-child(1)  { animation-delay: 0.0s; }
+        .bar:nth-child(2)  { animation-delay: 0.2s; }
+        .bar:nth-child(3)  { animation-delay: 0.4s; }
+        .bar:nth-child(4)  { animation-delay: 0.6s; }
+        .bar:nth-child(5)  { animation-delay: 0.8s; }
+        .bar:nth-child(6)  { animation-delay: 1.0s; }
+        .bar:nth-child(7)  { animation-delay: 0.8s; }
+        .bar:nth-child(8)  { animation-delay: 0.6s; }
+        .bar:nth-child(9)  { animation-delay: 0.4s; }
+        .bar:nth-child(10) { animation-delay: 0.2s; }
+        .bar:nth-child(11) { animation-delay: 0.0s; }
+
         @keyframes dance { 
-            0%, 100% { height: 10px; } 
-            50% { height: 45px; } 
+            0%, 100% { height: 5px; } 
+            50% { height: 50px; } 
         }
         p { opacity: 0.6; font-size: 14px; letter-spacing: 1px; }
     </style>
@@ -22,11 +36,17 @@
 <body>
     <div class="container">
         <div class="visualizer" id="viz">
-            <div class="bar" style="animation-delay: 0.1s"></div>
-            <div class="bar" style="animation-delay: 0.3s"></div>
-            <div class="bar" style="animation-delay: 0.2s"></div>
-            <div class="bar" style="animation-delay: 0.4s"></div>
-            <div class="bar" style="animation-delay: 0.1s"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
         </div>
         <button class="play-btn" id="btn">▶</button>
         <p id="status">НАЖМИ, ЧТОБЫ УСЛЫШАТЬ</p>
