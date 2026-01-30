@@ -5,15 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Твой момент</title>
     <style>
-        /* --- НАСТРОЙКИ ЦВЕТА --- */
+        /* --- ГЛАВНЫЕ НАСТРОЙКИ ЦВЕТА --- */
         :root { 
-            --bg-color: #fdf5e6; /* Основной фон страницы */
+            --bg-color: #f5f5dc;    /* Твой светлый фон (как на скрине) */
+            --text-color: #333333;  /* Цвет текста (темно-серый для светлого фона) */
+            --accent-color: #ff3366; /* Цвет сердца */
         } 
 
         body { 
             margin: 0; 
             background: var(--bg-color); 
-            color: white; 
+            color: var(--text-color); 
             display: flex; 
             align-items: center; 
             justify-content: center; 
@@ -21,120 +23,112 @@
             font-family: 'Segoe UI', sans-serif; 
             overflow-x: hidden; 
             flex-direction: column; 
+            transition: background 0.5s ease;
         }
         
-        /* Контейнер плеера */
         .container { 
             text-align: center; 
-            background: rgba(255, 255, 255, 0.05); 
+            background: rgba(0, 0, 0, 0.03); /* Очень легкая подложка */
             padding: 40px; 
             border-radius: 30px; 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5); 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1); 
             width: 85%; 
             max-width: 350px; 
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.05);
             opacity: 0; 
             display: none; 
             transition: all 0.8s ease;
         }
 
-        /* Сердце на входе */
         #heart-overlay { 
             position: absolute; 
             cursor: pointer; 
             text-align: center; 
-            transition: all 0.8s ease; 
             z-index: 10; 
         }
 
         .heart { 
             font-size: 80px; 
-            color: #ff3366; 
+            color: var(--accent-color); 
             animation: pulse 1.5s infinite; 
-            filter: drop-shadow(0 0 15px rgba(255, 51, 102, 0.5)); 
+            filter: drop-shadow(0 0 15px rgba(255, 51, 102, 0.3)); 
         }
 
-        /* Анимация пульсации */
         @keyframes pulse { 
             0% { transform: scale(1); } 
             50% { transform: scale(1.15); } 
             100% { transform: scale(1); } 
         }
 
-        /* Анимация исчезновения сердца */
         .heart-fall { 
             transform: translateY(100vh); 
             opacity: 0; 
+            transition: all 0.8s ease;
         }
 
-        /* Визуализатор (волны) */
         canvas { 
             width: 100%; 
             height: 100px; 
             margin-bottom: 20px; 
             border-radius: 10px; 
+            /* Если фон светлый, инвертируем цвет волн, чтобы они были видны */
+            filter: contrast(1.5);
         }
 
-        /* Кнопка Play/Pause */
         .play-btn { 
             width: 80px; 
             height: 80px; 
-            background: white; 
+            background: var(--text-color); /* Кнопка под цвет текста */
             border-radius: 50%; 
             border: none; 
             font-size: 30px; 
             cursor: pointer; 
             margin-bottom: 20px; 
-            color: #000; 
+            color: var(--bg-color); /* Иконка внутри под цвет фона */
             display: flex; 
             align-items: center; 
             justify-content: center; 
             margin-left: auto; 
             margin-right: auto; 
-            transition: 0.3s;
-        }
-        
-        .play-btn:active {
-            transform: scale(0.9);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
-        /* --- СТИЛИ ДЛЯ РЕКЛАМЫ И ИНСТАГРАМА --- */
         .order-btn { 
             display: none; 
             margin-top: 25px; 
             padding: 12px 25px; 
             background: transparent; 
-            border: 1px solid white; 
+            border: 1px solid var(--text-color); 
             border-radius: 25px; 
-            color: white; 
+            color: var(--text-color); 
             text-decoration: none; 
             font-size: 14px; 
             transition: 0.3s; 
-            opacity: 0.8;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1); /* Тень для читаемости */
         }
 
         .order-btn:hover { 
-            background: white; 
-            color: black; 
-            opacity: 1;
+            background: var(--text-color); 
+            color: var(--bg-color); 
         }
 
         .footer-link { 
             margin-top: 15px; 
             text-decoration: none; 
-            color: white; 
+            color: var(--text-color); 
             font-size: 13px; 
-            opacity: 0.5; 
+            opacity: 0.6; 
             display: none; 
-            letter-spacing: 1px;
+            text-shadow: 0 1px 1px rgba(0,0,0,0.1);
         }
 
-        /* Стандартный текст */
         p { 
             font-size: 13px; 
             letter-spacing: 2px; 
             text-transform: uppercase; 
             margin: 0; 
+            /* Легкая тень, чтобы текст не сливался */
+            text-shadow: 0 1px 1px rgba(0,0,0,0.1); 
         }
     </style>
 </head>
@@ -142,20 +136,21 @@
 
     <div id="heart-overlay" onclick="unlockMemories()">
         <div class="heart">❤️</div>
-        <p style="margin-top: 20px; color: white; opacity: 0.8;">Нажми, чтобы открыть</p>
+        <p style="margin-top: 20px;">Нажми, чтобы открыть</p>
     </div>
 
     <div class="container" id="player-container">
         <canvas id="visualizer"></canvas>
         <button class="play-btn" id="btn">⏸</button>
-        <p id="status" style="opacity: 0.5;">Звучат моменты...</p>
+        <p id="status">Звучат моменты...</p>
         <audio id="audio" src="audio.mp3"></audio>
     </div>
 
-    <a href="https://instagram.com/foton.mag.by" class="order-btn" id="order-btn">Заказать такой постер</a>
-    <p class="footer-link" id="footer-text">С любовью от @foton.mag.by</p>
+    <a href="https://instagram.com/ТВОЙ_НИК" class="order-btn" id="order-btn">Заказать такой постер</a>
+    <p class="footer-link" id="footer-text">С любовью от @ТВОЙ_НИК</p>
 
     <script>
+        // ... (весь JavaScript остается без изменений, как в предыдущем варианте) ...
         const audio = document.getElementById('audio');
         const btn = document.getElementById('btn');
         const canvas = document.getElementById('visualizer');
@@ -169,19 +164,13 @@
         let audioCtx, analyser, source, dataArray;
         let isReplay = false;
 
-        // Функция открытия
         function unlockMemories() {
-            // Уводим сердце вниз
             heartOverlay.classList.add('heart-fall');
-
             setTimeout(() => {
                 heartOverlay.style.display = 'none';
-                
-                // Показываем плеер и кнопки
                 playerContainer.style.display = 'block';
                 orderBtn.style.display = 'inline-block';
                 footerText.style.display = 'block';
-                
                 setTimeout(() => {
                     playerContainer.style.opacity = '1';
                     initAudioContext();
@@ -190,7 +179,6 @@
             }, 600);
         }
 
-        // Настройка звукового анализатора
         function initAudioContext() {
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -204,62 +192,38 @@
             }
         }
 
-        // Логика кнопки Плей / Пауза / Повтор
         btn.onclick = () => {
             if (isReplay) {
-                audio.currentTime = 0;
-                audio.play();
-                btn.innerText = '⏸';
-                status.innerText = 'Звучат моменты...';
+                audio.currentTime = 0; audio.play();
+                btn.innerText = '⏸'; status.innerText = 'Звучат моменты...';
                 isReplay = false;
             } else {
-                if (audio.paused) {
-                    audio.play();
-                    btn.innerText = '⏸';
-                    status.innerText = 'Звучат моменты...';
-                } else {
-                    audio.pause();
-                    btn.innerText = '▶';
-                    status.innerText = 'Пауза';
-                }
+                if (audio.paused) { audio.play(); btn.innerText = '⏸'; status.innerText = 'Звучат моменты...'; }
+                else { audio.pause(); btn.innerText = '▶'; status.innerText = 'Пауза'; }
             }
         };
 
-        // Рисование визуализатора
         function draw() {
             requestAnimationFrame(draw);
             if (!analyser) return;
-
             analyser.getByteFrequencyData(dataArray);
             canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
-
             const barWidth = (canvas.width / dataArray.length) * 2.5;
             let x = 0;
-
             for(let i = 0; i < dataArray.length; i++) {
                 const barHeight = dataArray[i] / 2.5;
-                canvasCtx.fillStyle = '#ffffff';
-                
+                // Цвет столбиков теперь тоже берется из переменной текста
+                canvasCtx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-color');
                 canvasCtx.beginPath();
                 const y = (canvas.height - barHeight) / 2;
-                if (canvasCtx.roundRect) {
-                    canvasCtx.roundRect(x, y, barWidth - 4, barHeight, 5);
-                } else {
-                    canvasCtx.rect(x, y, barWidth - 4, barHeight);
-                }
+                if (canvasCtx.roundRect) { canvasCtx.roundRect(x, y, barWidth - 4, barHeight, 5); }
+                else { canvasCtx.rect(x, y, barWidth - 4, barHeight); }
                 canvasCtx.fill();
                 x += barWidth;
             }
         }
 
-        // Событие: когда музыка закончилась
-        audio.onended = () => {
-            btn.innerText = '↻';
-            status.innerText = 'Послушать еще раз';
-            isReplay = true;
-        };
+        audio.onended = () => { btn.innerText = '↻'; status.innerText = 'Послушать еще раз'; isReplay = true; };
     </script>
 </body>
 </html>
-
-
