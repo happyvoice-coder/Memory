@@ -7,7 +7,7 @@
     <style>
         body { margin: 0; background: #0a0a0a; color: white; display: flex; align-items: center; justify-content: center; height: 100vh; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
         
-        /* Стили контейнера плеера (изначально скрыт) */
+        /* Контейнер плеера */
         .container { 
             text-align: center; 
             background: #1a1a1a; 
@@ -17,18 +17,18 @@
             width: 85%; 
             max-width: 350px; 
             border: 1px solid #333;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.8s ease;
-            display: none; /* Скрыт до клика */
+            opacity: 0; /* Скрыт изначально */
+            display: none;
+            transition: opacity 1s ease;
         }
 
-        /* Сердце */
+        /* Сердце на входе */
         #heart-overlay {
             position: absolute;
             cursor: pointer;
             text-align: center;
             transition: all 0.8s cubic-bezier(0.5, 0, 0.5, 1);
+            z-index: 10;
         }
 
         .heart {
@@ -44,16 +44,35 @@
             100% { transform: scale(1); }
         }
 
-        /* Анимация ухода сердца вниз */
+        /* Анимация исчезновения сердца */
         .heart-fall {
             transform: translateY(100vh) scale(0.5);
             opacity: 0;
         }
 
-        /* Стили плеера */
+        /* Визуализатор */
         canvas { width: 100%; height: 100px; margin-bottom: 20px; border-radius: 10px; }
-        .play-btn { width: 80px; height: 80px; background: white; border-radius: 50%; border: none; font-size: 24px; cursor: pointer; transition: 0.3s; margin-bottom: 20px; color: #000; box-shadow: 0 0 15px rgba(255,255,255,0.2); }
-        .play-btn:active { transform: scale(0.9); }
+        
+        /* Кнопка */
+        .play-btn { 
+            width: 80px; height: 80px; 
+            background: white; 
+            border-radius: 50%; 
+            border: none; 
+            font-size: 30px; /* Чуть увеличил для иконок */
+            cursor: pointer; 
+            transition: 0.3s; 
+            margin-bottom: 20px; 
+            color: #000; 
+            box-shadow: 0 0 15px rgba(255,255,255,0.2); 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .play-btn:active { transform: scale(0.95); }
+        
         p { opacity: 0.5; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; margin: 0; }
     </style>
 </head>
@@ -66,8 +85,7 @@
 
     <div class="container" id="player-container">
         <canvas id="visualizer"></canvas>
-        <button class="play-btn" id="btn">⏸</button>
-        <p id="status">Звучат моменты...</p>
+        <button class="play-btn" id="btn">⏸</button> <p id="status">Звучат моменты...</p>
         <audio id="audio" src="audio.mp3"></audio>
     </div>
 
@@ -81,54 +99,69 @@
         const playerContainer = document.getElementById('player-container');
 
         let audioCtx, analyser, source, dataArray;
+        let isReplay = false; // Флаг для проверки, закончился ли трек
 
-        // ФУНКЦИЯ "РАСПАКОВКИ"
+        // Функция открытия (анимация сердца)
         function unlockMemories() {
-            // 1. Уводим сердце вниз
             heartOverlay.classList.add('heart-fall');
             
-            // 2. Проявляем плеер
             setTimeout(() => {
                 heartOverlay.style.display = 'none';
                 playerContainer.style.display = 'block';
                 
-                // Небольшая задержка для плавного появления
+                // Плавное появление плеера
                 setTimeout(() => {
                     playerContainer.style.opacity = '1';
-                    playerContainer.style.transform = 'translateY(0)';
-                    startAudio(); // Запуск музыки
-                }, 50);
+                    initAudioContext(); // Инициализация звука
+                    audio.play();
+                }, 100);
             }, 600);
         }
 
-        function startAudio() {
+        // Инициализация AudioContext (нужна только один раз)
+        function initAudioContext() {
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 analyser = audioCtx.createAnalyser();
                 source = audioCtx.createMediaElementSource(audio);
                 source.connect(analyser);
                 analyser.connect(audioCtx.destination);
-                analyser.fftSize = 128; 
+                analyser.fftSize = 128;
                 dataArray = new Uint8Array(analyser.frequencyBinCount);
                 draw();
             }
-            audio.play();
         }
 
+        // Логика кнопки
         btn.onclick = () => {
-            if (audio.paused) {
+            if (isReplay) {
+                // Если трек закончился и мы жмем "Повторить"
+                audio.currentTime = 0;
                 audio.play();
                 btn.innerText = '⏸';
                 status.innerText = 'Звучат моменты...';
+                isReplay = false;
             } else {
-                audio.pause();
-                btn.innerText = '▶';
-                status.innerText = 'Пауза';
+                // Обычная пауза/плей
+                if (audio.paused) {
+                    audio.play();
+                    btn.innerText = '⏸';
+                    status.innerText = 'Звучат моменты...';
+                } else {
+                    audio.pause();
+                    btn.innerText = '▶'; 
+                    status.innerText = 'Пауза';
+                }
             }
         };
 
+        // Визуализатор
         function draw() {
             requestAnimationFrame(draw);
+            
+            // Если контекст не создан, выходим
+            if (!analyser) return;
+
             analyser.getByteFrequencyData(dataArray);
             canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
             
@@ -137,11 +170,15 @@
 
             for(let i = 0; i < dataArray.length; i++) {
                 const barHeight = dataArray[i] / 2.5;
+                
+                // Цвет столбиков
                 canvasCtx.fillStyle = '#ffffff';
+                
+                // Рисуем (проверка на поддержку roundRect для старых браузеров)
                 canvasCtx.beginPath();
                 const y = (canvas.height - barHeight) / 2;
                 if (canvasCtx.roundRect) {
-                    canvasCtx.roundRect(x, y, barWidth - 4, barHeight, 5); 
+                    canvasCtx.roundRect(x, y, barWidth - 4, barHeight, 5);
                 } else {
                     canvasCtx.rect(x, y, barWidth - 4, barHeight);
                 }
@@ -150,9 +187,11 @@
             }
         }
 
+        // Когда музыка заканчивается
         audio.onended = () => {
-            btn.innerText = '▶';
-            status.innerText = 'Прослушано';
+            btn.innerText = '↻'; // Иконка повтора
+            status.innerText = 'Послушать еще раз';
+            isReplay = true; // Включаем режим повтора
         };
     </script>
 </body>
