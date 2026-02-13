@@ -7,16 +7,15 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root { 
-            --bg-color: #464544;    /* Стандартный серый */
+            --bg-color: #464544; 
             --text-color: #fcfcfc; 
             --accent-color: #ff3366; 
             --glass-bg: rgba(255, 255, 255, 0.1);
         } 
 
-        /* Светлая (молочная) тема */
         body.light-mode {
-            --bg-color: #f9f9f2;    /* Нежно-белый (молочный) */
-            --text-color: #464544;  /* Темный текст для контраста */
+            --bg-color: #f9f9f2; /* Молочный фон */
+            --text-color: #464544; 
             --glass-bg: rgba(0, 0, 0, 0.05);
         }
 
@@ -46,7 +45,6 @@
             cursor: pointer;
             z-index: 20;
             font-size: 20px;
-            transition: 0.3s;
         }
         
         .container { 
@@ -83,7 +81,13 @@
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
         .heart-fall { transform: translateY(100vh); opacity: 0; transition: all 0.8s ease; }
 
-        canvas { width: 100%; height: 80px; margin-bottom: 20px; border-radius: 10px; }
+        /* ИСПРАВЛЕНО: задаем стиль только для визуализатора, чтобы не сплющивать салют */
+        #visualizer { 
+            width: 100%; 
+            height: 80px; 
+            margin-bottom: 20px; 
+            border-radius: 10px; 
+        }
 
         .play-wrapper {
             position: relative;
@@ -126,7 +130,6 @@
             z-index: 2;
         }
 
-        /* Эффект печати с исчезающим курсором */
         .typing-text {
             font-size: 13px; 
             letter-spacing: 2px; 
@@ -141,7 +144,7 @@
 
         @keyframes typing { from { width: 0 } to { width: 100% } }
         @keyframes blink { 50% { border-color: transparent } }
-        @keyframes hide-cursor { to { border-color: transparent; border-right: none; } }
+        @keyframes hide-cursor { to { border-right: none; } }
 
         .order-btn { 
             margin-top: 30px; 
@@ -155,12 +158,12 @@
             font-weight: bold;
             opacity: 0; 
             pointer-events: none; 
-            transition: opacity 1s ease, background 0.3s, color 0.3s; 
+            transition: opacity 1s ease; 
         }
 
         .order-btn:hover { background: var(--text-color); color: var(--bg-color); }
 
-        /* Возвращаем оригинальный стиль футера */
+        /* ВОЗВРАЩЕН ОРИГИНАЛЬНЫЙ ШРИФТ ФУТЕРА */
         .footer-link { 
             margin-top: 15px; 
             text-decoration: none; 
@@ -169,6 +172,7 @@
             opacity: 0.5; 
             display: none; 
             letter-spacing: 1px;
+            text-transform: none; /* Убираем капс, если он был */
         }
     </style>
 </head>
@@ -235,21 +239,20 @@
         function startTyping() {
             status.style.animation = 'none';
             status.offsetHeight; 
-            // Анимация печати + мигание + исчезновение палочки через 3 секунды
             status.style.animation = 'typing 3s steps(20, end) forwards, blink 0.8s infinite, hide-cursor 0.1s forwards 3s';
         }
 
         function unlockMemories() {
             heartOverlay.classList.add('heart-fall');
             
-            // Исправленные сердечки: крупнее (scalar: 2) и лучше позиция (y: 0.7)
+            // Салют из сердец теперь будет правильной формы
             confetti({
-                particleCount: 40,
+                particleCount: 60,
                 spread: 70,
-                origin: { y: 0.7 },
+                origin: { y: 0.6 },
                 colors: ['#ff3366'],
                 shapes: ['heart'],
-                scalar: 2 
+                scalar: 2.5 // Еще чуть крупнее
             });
 
             setTimeout(() => {
@@ -292,9 +295,7 @@
                 else { 
                     audio.pause(); btn.innerText = '▶'; 
                     status.innerText = 'Пауза'; 
-                    status.style.animation = 'none'; 
                     status.style.borderRight = 'none';
-                    status.style.width = '100%';
                     showButton(); 
                 }
             }
@@ -322,16 +323,15 @@
         audio.onended = () => { 
             btn.innerText = '↻'; 
             status.innerText = 'Послушать еще раз'; 
-            status.style.animation = 'none';
             status.style.borderRight = 'none';
-            status.style.width = '100%';
             isReplay = true; 
             showButton();
             confetti({
                 particleCount: 150,
                 spread: 100,
                 origin: { y: 0.6 },
-                colors: ['#ff3366', '#ffffff', '#ffd700']
+                colors: ['#ff3366', '#ffffff', '#ffd700'],
+                scalar: 1.2
             });
         };
     </script>
