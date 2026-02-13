@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Твой момент</title>
     <style>
         :root { 
@@ -18,10 +18,17 @@
             --glass-bg: rgba(0, 0, 0, 0.05);
         }
 
-        /* Убираем синюю подсветку при нажатии на мобильных устройствах */
+        /* Убираем синюю подсветку и разрешаем системные жесты (обновление) */
         * {
             -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
             outline: none;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            /* Убираем overflow: hidden, чтобы работал жест pull-to-refresh */
         }
 
         body { 
@@ -33,9 +40,10 @@
             justify-content: center; 
             min-height: 100vh; 
             font-family: 'Segoe UI', sans-serif; 
-            overflow: hidden; 
             flex-direction: column; 
             transition: background 0.8s ease, color 0.8s ease;
+            /* Предотвращает горизонтальную тряску, но оставляет вертикальные жесты */
+            overflow-x: hidden; 
         }
 
         .theme-toggle {
@@ -133,10 +141,14 @@
             z-index: 2;
         }
         
-        .play-btn svg {
-            width: 32px;
-            height: 32px;
-            display: block;
+        .play-btn svg { width: 32px; height: 32px; display: block; }
+
+        /* Контейнер для текста, чтобы он был по центру и курсор не убегал */
+        .typing-container {
+            height: 20px;
+            display: flex;
+            justify-content: center;
+            width: 100%;
         }
 
         .typing-text {
@@ -151,9 +163,10 @@
             width: 0;
         }
 
-        @keyframes typing { from { width: 0 } to { width: 100% } }
+        /* Анимации текста */
+        @keyframes typing { from { width: 0 } to { width: 185px } }
         @keyframes blink { 50% { border-color: transparent } }
-        @keyframes hide-cursor { to { border-right: none; } }
+        @keyframes hide-cursor { to { border-right: none } }
 
         .order-btn { 
             margin-top: 30px; 
@@ -205,7 +218,7 @@
             </button>
         </div>
 
-        <div style="height: 20px;">
+        <div class="typing-container">
             <p id="status" class="typing-text">Звучат моменты...</p>
         </div>
         
@@ -250,10 +263,17 @@
             setProgress(percent);
         };
 
-        function startTyping() {
+        function startTyping(text = "Звучат моменты...") {
+            status.innerText = text;
             status.style.animation = 'none';
+            status.style.borderRight = '2px solid var(--accent-color)';
             status.offsetHeight; 
-            status.style.animation = 'typing 3s steps(20, end) forwards, blink 0.8s infinite, hide-cursor 0.1s forwards 3s';
+            // Печать 3с + 3 мигания (1.5с) + скрытие
+            status.style.animation = `
+                typing 3s steps(18, end) forwards, 
+                blink 0.5s step-end 3s 3, 
+                hide-cursor 0s forwards 4.5s
+            `;
         }
 
         function unlockMemories() {
@@ -288,20 +308,21 @@
             if (isReplay) {
                 audio.currentTime = 0; audio.play();
                 btn.innerHTML = pauseSVG;
-                status.innerText = 'Звучат моменты...';
-                isReplay = false; startTyping();
+                isReplay = false; 
+                startTyping();
             } else {
                 if (audio.paused) { 
                     audio.play(); 
                     btn.innerHTML = pauseSVG;
-                    status.innerText = 'Звучат моменты...'; 
                     startTyping(); 
                 }
                 else { 
                     audio.pause(); 
                     btn.innerHTML = playSVG;
                     status.innerText = 'Пауза'; 
+                    status.style.animation = 'none';
                     status.style.borderRight = 'none';
+                    status.style.width = 'auto';
                     showButton(); 
                 }
             }
@@ -328,8 +349,10 @@
 
         audio.onended = () => { 
             btn.innerHTML = replaySVG;
-            status.innerText = 'Послушать еще раз'; 
+            status.style.animation = 'none';
             status.style.borderRight = 'none';
+            status.style.width = 'auto';
+            status.innerText = 'Послушать еще раз'; 
             isReplay = true; 
             showButton();
         };
