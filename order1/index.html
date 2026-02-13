@@ -4,14 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Твой момент</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        /* --- НАСТРОЙКИ ДИЗАЙНА --- */
         :root { 
-            --bg-color: #464544;    /* Цвет фона страницы */
-            --text-color: #fcfcfc;  /* Цвет текста и иконок */
-            --accent-color: #ff3366; /* Цвет сердца */
-            --glass-bg: rgba(255, 255, 255, 0.1); /* Плотность стекла плеера */
+            --bg-color: #464544;    /* Стандартный фон */
+            --text-color: #fcfcfc; 
+            --accent-color: #ff3366; 
+            --glass-bg: rgba(255, 255, 255, 0.1);
         } 
+
+        /* Ночная тема (Вариант №10) */
+        body.dark-mode {
+            --bg-color: #1a1a2e; 
+            --glass-bg: rgba(0, 0, 0, 0.3);
+        }
 
         body { 
             margin: 0; 
@@ -22,28 +28,35 @@
             justify-content: center; 
             min-height: 100vh; 
             font-family: 'Segoe UI', sans-serif; 
-            overflow-x: hidden; 
+            overflow: hidden; 
             flex-direction: column; 
-            transition: background 0.5s ease;
+            transition: background 0.8s ease;
+        }
+
+        /* Кнопка смены темы */
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--glass-bg);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 20;
+            font-size: 20px;
         }
         
-        /* Контейнер плеера с эффектом стекла */
         .container { 
             text-align: center; 
             background: var(--glass-bg); 
             padding: 40px; 
             border-radius: 35px; 
-            
-            /* Тень для выделения на светлом фоне */
-            box-shadow: 0 20px 60px rgba(0,0,0,0.12); 
-            
-            /* Адаптивная обводка */
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            
-            /* Размытие заднего фона (стекло) */
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15); 
+            border: 1px solid rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
-
             width: 85%; 
             max-width: 350px; 
             opacity: 0; 
@@ -52,7 +65,6 @@
             z-index: 5;
         }
 
-        /* Сердце */
         #heart-overlay { 
             position: absolute; 
             cursor: pointer; 
@@ -67,28 +79,38 @@
             filter: drop-shadow(0 0 15px rgba(255, 51, 102, 0.4)); 
         }
 
-        @keyframes pulse { 
-            0% { transform: scale(1); } 
-            50% { transform: scale(1.15); } 
-            100% { transform: scale(1); } 
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+
+        .heart-fall { transform: translateY(100vh); opacity: 0; transition: all 0.8s ease; }
+
+        canvas { width: 100%; height: 80px; margin-bottom: 20px; border-radius: 10px; }
+
+        /* Прогресс-бар вокруг кнопки (Вариант №11) */
+        .play-wrapper {
+            position: relative;
+            width: 90px;
+            height: 90px;
+            margin: 0 auto 20px;
         }
 
-        .heart-fall { 
-            transform: translateY(100vh); 
-            opacity: 0; 
-            transition: all 0.8s ease;
+        .progress-ring {
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform: rotate(-90deg);
         }
 
-        /* Визуализатор */
-        canvas { 
-            width: 100%; 
-            height: 100px; 
-            margin-bottom: 25px; 
-            border-radius: 10px; 
+        .progress-ring__circle {
+            stroke: var(--accent-color);
+            stroke-dasharray: 251.32; /* Окружность 2 * PI * 40 */
+            stroke-dashoffset: 251.32;
+            transition: stroke-dashoffset 0.1s;
         }
 
-        /* Кнопка управления */
         .play-btn { 
+            position: absolute;
+            top: 7.5px;
+            left: 7.5px;
             width: 75px; 
             height: 75px; 
             background: var(--text-color); 
@@ -96,22 +118,32 @@
             border: none; 
             font-size: 28px; 
             cursor: pointer; 
-            margin-bottom: 20px; 
             color: var(--bg-color); 
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            margin-left: auto; 
-            margin-right: auto; 
             box-shadow: 0 8px 20px rgba(0,0,0,0.15);
             transition: 0.3s;
+            z-index: 2;
         }
 
-        .play-btn:active { transform: scale(0.9); }
+        /* Эффект печати (Вариант №6) */
+        .typing-text {
+            font-size: 13px; 
+            letter-spacing: 2px; 
+            text-transform: uppercase; 
+            margin: 0;
+            display: inline-block;
+            overflow: hidden;
+            white-space: nowrap;
+            border-right: 2px solid var(--accent-color);
+            width: 0;
+        }
 
-        /* Рекламный блок */
+        @keyframes typing { from { width: 0 } to { width: 100% } }
+        @keyframes blink { 50% { border-color: transparent } }
+
         .order-btn { 
-            /* display: none; УБРАЛИ, чтобы работала анимация прозрачности */
             margin-top: 30px; 
             padding: 12px 28px; 
             background: transparent; 
@@ -121,48 +153,39 @@
             text-decoration: none; 
             font-size: 14px; 
             font-weight: bold;
-            
-            /* Новые стили для плавного появления */
-            opacity: 0;           /* Скрыта визуально */
-            pointer-events: none; /* Нельзя нажать пока скрыта */
-            transition: opacity 1s ease; /* Плавность 1 секунда */
+            opacity: 0; 
+            pointer-events: none; 
+            transition: opacity 1s ease; 
         }
 
-        .order-btn:hover { 
-            background: var(--text-color); 
-            color: var(--bg-color); 
-            opacity: 1;
-        }
+        .order-btn:hover { background: var(--text-color); color: var(--bg-color); }
 
-        .footer-link { 
-            margin-top: 15px; 
-            text-decoration: none; 
-            color: var(--text-color); 
-            font-size: 12px; 
-            opacity: 0.5; 
-            display: none; 
-            letter-spacing: 1px;
-        }
-
-        p { 
-            font-size: 13px; 
-            letter-spacing: 2px; 
-            text-transform: uppercase; 
-            margin: 0; 
-        }
+        .footer-link { margin-top: 15px; text-decoration: none; color: var(--text-color); font-size: 11px; opacity: 0.4; display: none; }
     </style>
 </head>
 <body>
 
+    <button class="theme-toggle" onclick="document.body.classList.toggle('dark-mode')">🌓</button>
+
     <div id="heart-overlay" onclick="unlockMemories()">
         <div class="heart">❤️</div>
-        <p style="margin-top: 20px; opacity: 0.7;">Нажми, чтобы открыть</p>
+        <p style="margin-top: 20px; opacity: 0.7; letter-spacing: 1px;">Нажми, чтобы открыть</p>
     </div>
 
     <div class="container" id="player-container">
         <canvas id="visualizer"></canvas>
-        <button class="play-btn" id="btn">⏸</button>
-        <p id="status" style="opacity: 0.6;">Звучат моменты...</p>
+        
+        <div class="play-wrapper">
+            <svg class="progress-ring" width="90" height="90">
+                <circle class="progress-ring__circle" stroke-width="4" fill="transparent" r="40" cx="45" cy="45"/>
+            </svg>
+            <button class="play-btn" id="btn">⏸</button>
+        </div>
+
+        <div style="height: 20px;">
+            <p id="status" class="typing-text">Звучат моменты...</p>
+        </div>
+        
         <audio id="audio" src="audio.mp3"></audio>
     </div>
 
@@ -179,27 +202,55 @@
         const playerContainer = document.getElementById('player-container');
         const orderBtn = document.getElementById('order-btn');
         const footerText = document.getElementById('footer-text');
+        const circle = document.querySelector('.progress-ring__circle');
+        const circumference = 2 * Math.PI * 40;
 
         let audioCtx, analyser, source, dataArray;
         let isReplay = false;
 
-        // Функция для плавного показа кнопки
         function showButton() {
             orderBtn.style.opacity = '1';
             orderBtn.style.pointerEvents = 'auto';
         }
 
+        function setProgress(percent) {
+            const offset = circumference - (percent / 100 * circumference);
+            circle.style.strokeDashoffset = offset;
+        }
+
+        // Обновление прогресс-бара
+        audio.ontimeupdate = () => {
+            const percent = (audio.currentTime / audio.duration) * 100;
+            setProgress(percent);
+        };
+
+        function startTyping() {
+            status.style.animation = 'none';
+            status.offsetHeight; 
+            status.style.animation = 'typing 3s steps(20, end) forwards, blink 0.8s infinite';
+        }
+
         function unlockMemories() {
             heartOverlay.classList.add('heart-fall');
+            
+            // Вариант №3: Сердечки при старте
+            confetti({
+                particleCount: 50,
+                spread: 60,
+                origin: { y: 0.8 },
+                colors: ['#ff3366'],
+                shapes: ['heart']
+            });
+
             setTimeout(() => {
                 heartOverlay.style.display = 'none';
                 playerContainer.style.display = 'block';
-                // orderBtn больше не показываем здесь сразу
                 footerText.style.display = 'block';
                 setTimeout(() => {
                     playerContainer.style.opacity = '1';
                     initAudioContext();
                     audio.play();
+                    startTyping();
                 }, 100);
             }, 600);
         }
@@ -221,20 +272,10 @@
             if (isReplay) {
                 audio.currentTime = 0; audio.play();
                 btn.innerText = '⏸'; status.innerText = 'Звучат моменты...';
-                isReplay = false;
+                isReplay = false; startTyping();
             } else {
-                if (audio.paused) { 
-                    audio.play(); 
-                    btn.innerText = '⏸'; 
-                    status.innerText = 'Звучат моменты...'; 
-                }
-                else { 
-                    audio.pause(); 
-                    btn.innerText = '▶'; 
-                    status.innerText = 'Пауза'; 
-                    // Показываем кнопку при паузе
-                    showButton();
-                }
+                if (audio.paused) { audio.play(); btn.innerText = '⏸'; status.innerText = 'Звучат моменты...'; startTyping(); }
+                else { audio.pause(); btn.innerText = '▶'; status.innerText = 'Пауза'; showButton(); }
             }
         };
 
@@ -261,8 +302,14 @@
             btn.innerText = '↻'; 
             status.innerText = 'Послушать еще раз'; 
             isReplay = true; 
-            // Показываем кнопку когда аудио закончилось
             showButton();
+            // Вариант №18: Праздничный салют в конце
+            confetti({
+                particleCount: 150,
+                spread: 100,
+                origin: { y: 0.6 },
+                colors: ['#ff3366', '#ffffff', '#ffd700']
+            });
         };
     </script>
 </body>
