@@ -7,16 +7,17 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root { 
-            --bg-color: #464544;    /* Стандартный фон */
+            --bg-color: #464544;    /* Стандартный серый */
             --text-color: #fcfcfc; 
             --accent-color: #ff3366; 
             --glass-bg: rgba(255, 255, 255, 0.1);
         } 
 
-        /* Ночная тема (Вариант №10) */
-        body.dark-mode {
-            --bg-color: #1a1a2e; 
-            --glass-bg: rgba(0, 0, 0, 0.3);
+        /* Светлая (молочная) тема */
+        body.light-mode {
+            --bg-color: #f9f9f2;    /* Нежно-белый (молочный) */
+            --text-color: #464544;  /* Темный текст для контраста */
+            --glass-bg: rgba(0, 0, 0, 0.05);
         }
 
         body { 
@@ -30,22 +31,22 @@
             font-family: 'Segoe UI', sans-serif; 
             overflow: hidden; 
             flex-direction: column; 
-            transition: background 0.8s ease;
+            transition: background 0.8s ease, color 0.8s ease;
         }
 
-        /* Кнопка смены темы */
         .theme-toggle {
             position: absolute;
             top: 20px;
             right: 20px;
             background: var(--glass-bg);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: white;
+            border: 1px solid rgba(150,150,150,0.2);
+            color: var(--text-color);
             padding: 10px;
             border-radius: 50%;
             cursor: pointer;
             z-index: 20;
             font-size: 20px;
+            transition: 0.3s;
         }
         
         .container { 
@@ -53,7 +54,7 @@
             background: var(--glass-bg); 
             padding: 40px; 
             border-radius: 35px; 
-            box-shadow: 0 20px 60px rgba(0,0,0,0.15); 
+            box-shadow: 0 20px 60px rgba(0,0,0,0.12); 
             border: 1px solid rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
@@ -80,12 +81,10 @@
         }
 
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
-
         .heart-fall { transform: translateY(100vh); opacity: 0; transition: all 0.8s ease; }
 
         canvas { width: 100%; height: 80px; margin-bottom: 20px; border-radius: 10px; }
 
-        /* Прогресс-бар вокруг кнопки (Вариант №11) */
         .play-wrapper {
             position: relative;
             width: 90px;
@@ -102,7 +101,7 @@
 
         .progress-ring__circle {
             stroke: var(--accent-color);
-            stroke-dasharray: 251.32; /* Окружность 2 * PI * 40 */
+            stroke-dasharray: 251.32; 
             stroke-dashoffset: 251.32;
             transition: stroke-dashoffset 0.1s;
         }
@@ -127,7 +126,7 @@
             z-index: 2;
         }
 
-        /* Эффект печати (Вариант №6) */
+        /* Эффект печати с исчезающим курсором */
         .typing-text {
             font-size: 13px; 
             letter-spacing: 2px; 
@@ -142,6 +141,7 @@
 
         @keyframes typing { from { width: 0 } to { width: 100% } }
         @keyframes blink { 50% { border-color: transparent } }
+        @keyframes hide-cursor { to { border-color: transparent; border-right: none; } }
 
         .order-btn { 
             margin-top: 30px; 
@@ -155,21 +155,30 @@
             font-weight: bold;
             opacity: 0; 
             pointer-events: none; 
-            transition: opacity 1s ease; 
+            transition: opacity 1s ease, background 0.3s, color 0.3s; 
         }
 
         .order-btn:hover { background: var(--text-color); color: var(--bg-color); }
 
-        .footer-link { margin-top: 15px; text-decoration: none; color: var(--text-color); font-size: 11px; opacity: 0.4; display: none; }
+        /* Возвращаем оригинальный стиль футера */
+        .footer-link { 
+            margin-top: 15px; 
+            text-decoration: none; 
+            color: var(--text-color); 
+            font-size: 12px; 
+            opacity: 0.5; 
+            display: none; 
+            letter-spacing: 1px;
+        }
     </style>
 </head>
 <body>
 
-    <button class="theme-toggle" onclick="document.body.classList.toggle('dark-mode')">🌓</button>
+    <button class="theme-toggle" onclick="document.body.classList.toggle('light-mode')">🌓</button>
 
     <div id="heart-overlay" onclick="unlockMemories()">
         <div class="heart">❤️</div>
-        <p style="margin-top: 20px; opacity: 0.7; letter-spacing: 1px;">Нажми, чтобы открыть</p>
+        <p style="margin-top: 20px; opacity: 0.7; letter-spacing: 2px; text-transform: uppercase; font-size: 13px;">Нажми, чтобы открыть</p>
     </div>
 
     <div class="container" id="player-container">
@@ -189,7 +198,7 @@
         <audio id="audio" src="audio.mp3"></audio>
     </div>
 
-    <a href="https://www.instagram.com/foton.mag/" target="_blank" class="order-btn" id="order-btn">Заказать постер</a>
+    <a href="https://www.instagram.com/foton.mag/" target="_blank" class="order-btn" id="order-btn">ЗАКАЗАТЬ ПОСТЕР</a>
     <p class="footer-link" id="footer-text">С любовью от @foton.mag</p>
 
     <script>
@@ -218,7 +227,6 @@
             circle.style.strokeDashoffset = offset;
         }
 
-        // Обновление прогресс-бара
         audio.ontimeupdate = () => {
             const percent = (audio.currentTime / audio.duration) * 100;
             setProgress(percent);
@@ -227,19 +235,21 @@
         function startTyping() {
             status.style.animation = 'none';
             status.offsetHeight; 
-            status.style.animation = 'typing 3s steps(20, end) forwards, blink 0.8s infinite';
+            // Анимация печати + мигание + исчезновение палочки через 3 секунды
+            status.style.animation = 'typing 3s steps(20, end) forwards, blink 0.8s infinite, hide-cursor 0.1s forwards 3s';
         }
 
         function unlockMemories() {
             heartOverlay.classList.add('heart-fall');
             
-            // Вариант №3: Сердечки при старте
+            // Исправленные сердечки: крупнее (scalar: 2) и лучше позиция (y: 0.7)
             confetti({
-                particleCount: 50,
-                spread: 60,
-                origin: { y: 0.8 },
+                particleCount: 40,
+                spread: 70,
+                origin: { y: 0.7 },
                 colors: ['#ff3366'],
-                shapes: ['heart']
+                shapes: ['heart'],
+                scalar: 2 
             });
 
             setTimeout(() => {
@@ -274,8 +284,19 @@
                 btn.innerText = '⏸'; status.innerText = 'Звучат моменты...';
                 isReplay = false; startTyping();
             } else {
-                if (audio.paused) { audio.play(); btn.innerText = '⏸'; status.innerText = 'Звучат моменты...'; startTyping(); }
-                else { audio.pause(); btn.innerText = '▶'; status.innerText = 'Пауза'; showButton(); }
+                if (audio.paused) { 
+                    audio.play(); btn.innerText = '⏸'; 
+                    status.innerText = 'Звучат моменты...'; 
+                    startTyping(); 
+                }
+                else { 
+                    audio.pause(); btn.innerText = '▶'; 
+                    status.innerText = 'Пауза'; 
+                    status.style.animation = 'none'; 
+                    status.style.borderRight = 'none';
+                    status.style.width = '100%';
+                    showButton(); 
+                }
             }
         };
 
@@ -288,7 +309,7 @@
             let x = 0;
             for(let i = 0; i < dataArray.length; i++) {
                 const barHeight = dataArray[i] / 2.5;
-                canvasCtx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-color');
+                canvasCtx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-color');
                 canvasCtx.beginPath();
                 const y = (canvas.height - barHeight) / 2;
                 if (canvasCtx.roundRect) { canvasCtx.roundRect(x, y, barWidth - 4, barHeight, 5); }
@@ -301,9 +322,11 @@
         audio.onended = () => { 
             btn.innerText = '↻'; 
             status.innerText = 'Послушать еще раз'; 
+            status.style.animation = 'none';
+            status.style.borderRight = 'none';
+            status.style.width = '100%';
             isReplay = true; 
             showButton();
-            // Вариант №18: Праздничный салют в конце
             confetti({
                 particleCount: 150,
                 spread: 100,
