@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Твой момент</title>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root { 
             --bg-color: #464544; 
@@ -81,7 +80,6 @@
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
         .heart-fall { transform: translateY(100vh); opacity: 0; transition: all 0.8s ease; }
 
-        /* ИСПРАВЛЕНО: задаем стиль только для визуализатора, чтобы не сплющивать салют */
         #visualizer { 
             width: 100%; 
             height: 80px; 
@@ -116,18 +114,25 @@
             left: 7.5px;
             width: 75px; 
             height: 75px; 
-            background: var(--text-color); 
+            background: var(--text-color); /* Цвет фона кнопки */
             border-radius: 50%; 
             border: none; 
-            font-size: 28px; 
+            /* font-size больше не нужен для SVG */
             cursor: pointer; 
-            color: var(--bg-color); 
+            color: var(--bg-color); /* Цвет иконки (такой же как фон страницы) */
             display: flex; 
             align-items: center; 
             justify-content: center; 
             box-shadow: 0 8px 20px rgba(0,0,0,0.15);
             transition: 0.3s;
             z-index: 2;
+        }
+        
+        /* Стили для SVG иконок внутри кнопки */
+        .play-btn svg {
+            width: 32px;
+            height: 32px;
+            display: block;
         }
 
         .typing-text {
@@ -163,7 +168,6 @@
 
         .order-btn:hover { background: var(--text-color); color: var(--bg-color); }
 
-        /* ВОЗВРАЩЕН ОРИГИНАЛЬНЫЙ ШРИФТ ФУТЕРА */
         .footer-link { 
             margin-top: 15px; 
             text-decoration: none; 
@@ -172,7 +176,7 @@
             opacity: 0.5; 
             display: none; 
             letter-spacing: 1px;
-            text-transform: none; /* Убираем капс, если он был */
+            text-transform: none;
         }
     </style>
 </head>
@@ -192,7 +196,9 @@
             <svg class="progress-ring" width="90" height="90">
                 <circle class="progress-ring__circle" stroke-width="4" fill="transparent" r="40" cx="45" cy="45"/>
             </svg>
-            <button class="play-btn" id="btn">⏸</button>
+            <button class="play-btn" id="btn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" fill="currentColor"/></svg>
+            </button>
         </div>
 
         <div style="height: 20px;">
@@ -217,6 +223,12 @@
         const footerText = document.getElementById('footer-text');
         const circle = document.querySelector('.progress-ring__circle');
         const circumference = 2 * Math.PI * 40;
+
+        // Определяем SVG иконки как строки для использования в JS
+        const playSVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>';
+        const pauseSVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" fill="currentColor"/></svg>';
+        const replaySVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z" fill="currentColor"/></svg>';
+
 
         let audioCtx, analyser, source, dataArray;
         let isReplay = false;
@@ -245,16 +257,6 @@
         function unlockMemories() {
             heartOverlay.classList.add('heart-fall');
             
-            // Салют из сердец теперь будет правильной формы
-            confetti({
-                particleCount: 60,
-                spread: 70,
-                origin: { y: 0.6 },
-                colors: ['#ff3366'],
-                shapes: ['heart'],
-                scalar: 2.5 // Еще чуть крупнее
-            });
-
             setTimeout(() => {
                 heartOverlay.style.display = 'none';
                 playerContainer.style.display = 'block';
@@ -284,16 +286,22 @@
         btn.onclick = () => {
             if (isReplay) {
                 audio.currentTime = 0; audio.play();
-                btn.innerText = '⏸'; status.innerText = 'Звучат моменты...';
+                // Меняем иконку на Паузу
+                btn.innerHTML = pauseSVG;
+                status.innerText = 'Звучат моменты...';
                 isReplay = false; startTyping();
             } else {
                 if (audio.paused) { 
-                    audio.play(); btn.innerText = '⏸'; 
+                    audio.play(); 
+                    // Меняем иконку на Паузу
+                    btn.innerHTML = pauseSVG;
                     status.innerText = 'Звучат моменты...'; 
                     startTyping(); 
                 }
                 else { 
-                    audio.pause(); btn.innerText = '▶'; 
+                    audio.pause(); 
+                    // Меняем иконку на Плей (треугольник)
+                    btn.innerHTML = playSVG;
                     status.innerText = 'Пауза'; 
                     status.style.borderRight = 'none';
                     showButton(); 
@@ -321,18 +329,12 @@
         }
 
         audio.onended = () => { 
-            btn.innerText = '↻'; 
+            // Меняем иконку на Повтор (стрелочка)
+            btn.innerHTML = replaySVG;
             status.innerText = 'Послушать еще раз'; 
             status.style.borderRight = 'none';
             isReplay = true; 
             showButton();
-            confetti({
-                particleCount: 150,
-                spread: 100,
-                origin: { y: 0.6 },
-                colors: ['#ff3366', '#ffffff', '#ffd700'],
-                scalar: 1.2
-            });
         };
     </script>
 </body>
