@@ -111,7 +111,7 @@
 
         /* Рекламный блок */
         .order-btn { 
-            display: none; 
+            /* display: none; УБРАЛИ, чтобы работала анимация прозрачности */
             margin-top: 30px; 
             padding: 12px 28px; 
             background: transparent; 
@@ -121,8 +121,11 @@
             text-decoration: none; 
             font-size: 14px; 
             font-weight: bold;
-            transition: 0.3s; 
-            opacity: 0.9;
+            
+            /* Новые стили для плавного появления */
+            opacity: 0;           /* Скрыта визуально */
+            pointer-events: none; /* Нельзя нажать пока скрыта */
+            transition: opacity 1s ease; /* Плавность 1 секунда */
         }
 
         .order-btn:hover { 
@@ -180,12 +183,18 @@
         let audioCtx, analyser, source, dataArray;
         let isReplay = false;
 
+        // Функция для плавного показа кнопки
+        function showButton() {
+            orderBtn.style.opacity = '1';
+            orderBtn.style.pointerEvents = 'auto';
+        }
+
         function unlockMemories() {
             heartOverlay.classList.add('heart-fall');
             setTimeout(() => {
                 heartOverlay.style.display = 'none';
                 playerContainer.style.display = 'block';
-                orderBtn.style.display = 'inline-block';
+                // orderBtn больше не показываем здесь сразу
                 footerText.style.display = 'block';
                 setTimeout(() => {
                     playerContainer.style.opacity = '1';
@@ -214,8 +223,18 @@
                 btn.innerText = '⏸'; status.innerText = 'Звучат моменты...';
                 isReplay = false;
             } else {
-                if (audio.paused) { audio.play(); btn.innerText = '⏸'; status.innerText = 'Звучат моменты...'; }
-                else { audio.pause(); btn.innerText = '▶'; status.innerText = 'Пауза'; }
+                if (audio.paused) { 
+                    audio.play(); 
+                    btn.innerText = '⏸'; 
+                    status.innerText = 'Звучат моменты...'; 
+                }
+                else { 
+                    audio.pause(); 
+                    btn.innerText = '▶'; 
+                    status.innerText = 'Пауза'; 
+                    // Показываем кнопку при паузе
+                    showButton();
+                }
             }
         };
 
@@ -228,7 +247,6 @@
             let x = 0;
             for(let i = 0; i < dataArray.length; i++) {
                 const barHeight = dataArray[i] / 2.5;
-                // Столбики рисуются цветом текста для идеального контраста
                 canvasCtx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-color');
                 canvasCtx.beginPath();
                 const y = (canvas.height - barHeight) / 2;
@@ -239,14 +257,13 @@
             }
         }
 
-        audio.onended = () => { btn.innerText = '↻'; status.innerText = 'Послушать еще раз'; isReplay = true; };
+        audio.onended = () => { 
+            btn.innerText = '↻'; 
+            status.innerText = 'Послушать еще раз'; 
+            isReplay = true; 
+            // Показываем кнопку когда аудио закончилось
+            showButton();
+        };
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
