@@ -25,37 +25,67 @@
             box-sizing: border-box;
         }
 
-        html { height: 100%; }
+        html, body { 
+            height: 100%; 
+            margin: 0; 
+            overflow: hidden; /* Убираем лишнюю прокрутку и "болтанку" */
+            overscroll-behavior-y: none; /* Запрещаем контенту "ездить" */
+        }
 
         body { 
-            margin: 0;
             background: var(--bg-color); 
             color: var(--text-color); 
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            min-height: 100%; /* Исправлено для pull-to-refresh */
             font-family: 'Segoe UI', sans-serif; 
-            flex-direction: column;
             transition: background 0.8s ease, color 0.8s ease;
-            overflow-x: hidden;
-            padding: 20px 0; /* Чтобы не прилипало к краям на маленьких экранах */
         }
 
         .theme-toggle {
-            position: fixed; /* Чтобы всегда была на месте */
-            top: 20px;
-            right: 20px;
+            position: fixed;
+            top: 15px;
+            right: 15px;
             background: var(--glass-bg);
             border: 1px solid rgba(150,150,150,0.2);
             color: var(--text-color);
-            padding: 10px;
+            padding: 8px;
             border-radius: 50%;
             cursor: pointer;
             z-index: 100;
-            font-size: 20px;
+            font-size: 18px;
         }
         
+        /* Сердце теперь в отдельном слое для идеальной центровки */
+        #heart-overlay { 
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-color);
+            z-index: 50;
+            cursor: pointer;
+        }
+
+        .heart { 
+            font-size: 90px;
+            color: var(--accent-color); 
+            animation: pulse 1.5s infinite; 
+            filter: drop-shadow(0 0 15px rgba(255, 51, 102, 0.4));
+        }
+
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+        
+        .heart-fall { 
+            opacity: 0; 
+            transform: scale(0.8);
+            transition: all 0.5s ease; 
+            pointer-events: none;
+        }
+
         .container { 
             text-align: center;
             background: var(--glass-bg); 
@@ -65,12 +95,12 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
-            width: 90%; 
+            width: 92%; 
             max-width: 400px; 
             opacity: 0; 
             display: none; 
-            transition: all 0.8s ease;
-            margin-top: 40px; /* Убираем наползание на кнопку темы */
+            transition: opacity 0.8s ease;
+            margin-top: 40px; /* Отступ от кнопки темы */
         }
 
         .video-wrapper {
@@ -80,53 +110,20 @@
             background: #000;
             margin-bottom: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            line-height: 0;
         }
 
-        #media {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        #heart-overlay { 
-            cursor: pointer; 
-            text-align: center; 
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .heart { 
-            font-size: 80px;
-            color: var(--accent-color); 
-            animation: pulse 1.5s infinite; 
-            filter: drop-shadow(0 0 15px rgba(255, 51, 102, 0.4));
-        }
-
-        @keyframes pulse { 
-            0%, 100% { transform: scale(1); } 
-            50% { transform: scale(1.15); } 
-        }
-
-        .heart-fall { 
-            transform: translateY(50px); 
-            opacity: 0; 
-            transition: all 0.6s ease; 
-            pointer-events: none;
-        }
+        #media { width: 100%; display: block; }
 
         #visualizer { 
             width: 100%;
-            height: 60px; 
+            height: 50px; 
             margin-bottom: 10px; 
         }
 
         .play-wrapper {
             position: relative;
-            width: 85px;
-            height: 85px;
+            width: 80px;
+            height: 80px;
             margin: 0 auto 15px;
         }
 
@@ -134,40 +131,34 @@
 
         .progress-ring__circle {
             stroke: var(--accent-color);
-            stroke-dasharray: 238.76; /* 2 * PI * 38 */
-            stroke-dashoffset: 238.76;
+            stroke-dasharray: 226.19; 
+            stroke-dashoffset: 226.19;
             transition: stroke-dashoffset 0.1s;
         }
 
         .play-btn { 
             position: absolute;
             top: 5px; left: 5px;
-            width: 75px; height: 75px; 
+            width: 70px; height: 70px; 
             background: var(--text-color); 
             border-radius: 50%; 
             border: none; cursor: pointer; color: var(--bg-color); 
             display: flex; align-items: center; justify-content: center; 
             box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-            transition: 0.3s;
         }
         
-        .play-btn svg { width: 30px; height: 30px; }
+        .play-btn svg { width: 28px; height: 28px; }
 
-        .typing-container {
-            height: 20px; display: flex; justify-content: center; width: 100%;
-        }
+        .typing-container { height: 20px; display: flex; justify-content: center; }
 
         .typing-text {
-            font-size: 13px; letter-spacing: 2px; text-transform: uppercase; margin: 0;
-            display: inline-block; overflow: hidden; white-space: nowrap;
+            font-size: 13px; letter-spacing: 2px; text-transform: uppercase;
             border-right: 2px solid var(--accent-color);
-            width: 0;
+            white-space: nowrap; overflow: hidden; width: 0;
         }
 
-        /* Улучшенные анимации текста */
         @keyframes typing { from { width: 0 } to { width: 210px } }
         @keyframes blink { 50% { border-color: transparent } }
-        @keyframes hide-cursor { to { border-right: none } }
 
         .order-btn { 
             margin-top: 25px; padding: 12px 28px; background: transparent; 
@@ -176,15 +167,10 @@
             font-weight: bold; opacity: 0; pointer-events: none; transition: opacity 1s ease; 
         }
 
-        .order-btn:hover { background: var(--text-color); color: var(--bg-color); }
-
-        .footer-link { 
-            margin-top: 15px; text-decoration: none; color: var(--text-color); 
-            font-size: 11px; opacity: 0.5; display: none; letter-spacing: 1px;
-        }
+        .footer-link { margin-top: 15px; font-size: 11px; opacity: 0.5; display: none; }
     </style>
 </head>
-<body class="dark-mode">
+<body>
 
     <button class="theme-toggle" onclick="document.body.classList.toggle('light-mode')">🌓</button>
 
@@ -195,14 +181,14 @@
 
     <div class="container" id="player-container">
         <div class="video-wrapper">
-            <video id="media" src="video.mp4" playsinline disableremoteplayback webkit-playsinline preload="auto"></video>
+            <video id="media" src="video.mp4" playsinline disableremoteplayback webkit-playsinline></video>
         </div>
         
         <canvas id="visualizer"></canvas>
         
         <div class="play-wrapper">
-            <svg class="progress-ring" width="85" height="85">
-                <circle class="progress-ring__circle" stroke-width="4" fill="transparent" r="38" cx="42.5" cy="42.5"/>
+            <svg class="progress-ring" width="80" height="80">
+                <circle class="progress-ring__circle" stroke-width="4" fill="transparent" r="36" cx="40" cy="40"/>
             </svg>
             <button class="play-btn" id="btn">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" fill="currentColor"/></svg>
@@ -214,9 +200,6 @@
         </div>
     </div>
 
-    <a href="https://www.instagram.com/foton.mag/" target="_blank" class="order-btn" id="order-btn">ЗАКАЗАТЬ ПОСТЕР</a>
-    <p class="footer-link" id="footer-text">С любовью от @foton.mag</p>
-
     <script>
         const media = document.getElementById('media');
         const btn = document.getElementById('btn');
@@ -225,42 +208,31 @@
         const status = document.getElementById('status');
         const heartOverlay = document.getElementById('heart-overlay');
         const playerContainer = document.getElementById('player-container');
-        const orderBtn = document.getElementById('order-btn');
-        const footerText = document.getElementById('footer-text');
         const circle = document.querySelector('.progress-ring__circle');
-        const circumference = 2 * Math.PI * 38;
+        const circumference = 2 * Math.PI * 36;
 
         const playSVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>';
         const pauseSVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" fill="currentColor"/></svg>';
         const replaySVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z" fill="currentColor"/></svg>';
         
-        let audioCtx, analyser, source, dataArray;
-        let isReplay = false;
+        let audioCtx, analyser, source, dataArray, isReplay = false;
 
         function setProgress(percent) {
-            const offset = circumference - (percent / 100 * circumference);
-            circle.style.strokeDashoffset = offset;
+            circle.style.strokeDashoffset = circumference - (percent / 100 * circumference);
         }
 
         media.ontimeupdate = () => {
-            if (media.duration) {
-                const percent = (media.currentTime / media.duration) * 100;
-                setProgress(percent);
-            }
+            if (media.duration) setProgress((media.currentTime / media.duration) * 100);
         };
 
         function startTyping(text = "Смотрим моменты...") {
             status.innerText = text;
             status.style.animation = 'none';
             status.style.borderRight = '2px solid var(--accent-color)';
-            status.style.width = '0';
             status.offsetHeight; 
-            status.style.animation = `
-                typing 2s steps(20, end) forwards, 
-                blink 0.5s step-end infinite,
-                hide-cursor 0s forwards 3s
-            `;
-            // Принудительно убираем курсор через 3 секунды
+            status.style.animation = `typing 2s steps(20, end) forwards, blink 0.5s step-end infinite`;
+            
+            // Убираем красную полоску через 3 сек
             setTimeout(() => { status.style.borderRight = 'none'; }, 3000);
         }
 
@@ -269,51 +241,35 @@
             setTimeout(() => {
                 heartOverlay.style.display = 'none';
                 playerContainer.style.display = 'block';
-                footerText.style.display = 'block';
                 setTimeout(() => {
                     playerContainer.style.opacity = '1';
-                    initAudioContext();
+                    if (!audioCtx) initAudio();
                     media.play();
                     startTyping();
-                }, 100);
-            }, 600);
+                }, 50);
+            }, 500);
         }
 
-        function initAudioContext() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                analyser = audioCtx.createAnalyser();
-                source = audioCtx.createMediaElementSource(media);
-                source.connect(analyser);
-                analyser.connect(audioCtx.destination);
-                analyser.fftSize = 256; // Больше деталей для эквалайзера
-                dataArray = new Uint8Array(analyser.frequencyBinCount);
-                draw();
-            }
+        function initAudio() {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioCtx.createAnalyser();
+            source = audioCtx.createMediaElementSource(media);
+            source.connect(analyser);
+            analyser.connect(audioCtx.destination);
+            analyser.fftSize = 128;
+            dataArray = new Uint8Array(analyser.frequencyBinCount);
+            draw();
         }
 
         btn.onclick = () => {
             if (isReplay) {
-                media.currentTime = 0;
-                media.play();
-                btn.innerHTML = pauseSVG;
-                isReplay = false; 
-                startTyping();
+                media.currentTime = 0; media.play();
+                btn.innerHTML = pauseSVG; isReplay = false; startTyping();
+            } else if (media.paused) {
+                media.play(); btn.innerHTML = pauseSVG; startTyping();
             } else {
-                if (media.paused) { 
-                    media.play();
-                    btn.innerHTML = pauseSVG;
-                    startTyping(); 
-                } else { 
-                    media.pause();
-                    btn.innerHTML = playSVG;
-                    status.innerText = 'Пауза'; 
-                    status.style.animation = 'none';
-                    status.style.borderRight = 'none';
-                    status.style.width = 'auto';
-                    orderBtn.style.opacity = '1';
-                    orderBtn.style.pointerEvents = 'auto';
-                }
+                media.pause(); btn.innerHTML = playSVG;
+                status.innerText = 'Пауза'; status.style.animation = 'none'; status.style.borderRight = 'none'; status.style.width = 'auto';
             }
         };
 
@@ -323,33 +279,20 @@
             analyser.getByteFrequencyData(dataArray);
             canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
             
-            const barWidth = (canvas.width / dataArray.length) * 2.5;
+            const barWidth = (canvas.width / dataArray.length) * 2;
             let x = 0;
             for(let i = 0; i < dataArray.length; i++) {
-                const barHeight = dataArray[i] / 3.5;
+                let barHeight = dataArray[i] / 4;
                 canvasCtx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-color');
-                const y = (canvas.height - barHeight) / 2;
-                
-                canvasCtx.beginPath();
-                if (canvasCtx.roundRect) {
-                    canvasCtx.roundRect(x, y, barWidth - 2, barHeight, 2);
-                } else {
-                    canvasCtx.rect(x, y, barWidth - 2, barHeight);
-                }
-                canvasCtx.fill();
+                // Рисуем симметричный эквалайзер
+                canvasCtx.fillRect(x, (canvas.height - barHeight) / 2, barWidth - 2, barHeight);
                 x += barWidth;
             }
         }
 
         media.onended = () => { 
-            btn.innerHTML = replaySVG;
-            status.style.animation = 'none';
-            status.style.borderRight = 'none';
-            status.style.width = 'auto';
-            status.innerText = 'Посмотреть еще раз'; 
-            isReplay = true; 
-            orderBtn.style.opacity = '1';
-            orderBtn.style.pointerEvents = 'auto';
+            btn.innerHTML = replaySVG; isReplay = true;
+            status.innerText = 'Посмотреть еще раз'; status.style.animation = 'none'; status.style.borderRight = 'none';
         };
     </script>
 </body>
