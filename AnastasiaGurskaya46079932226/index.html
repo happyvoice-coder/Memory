@@ -200,6 +200,7 @@
             justify-content: center;
             align-items: center;
             width: 100%;
+            position: relative;
         }
         .status-text {
             font-size: 11px;
@@ -207,21 +208,31 @@
             text-transform: uppercase;
             opacity: 0.7;
             white-space: nowrap;
-            /* текст всегда по центру, clip-path открывает его слева направо */
             display: inline-block;
-            border-right: 2px solid var(--accent);
+            /* clip-path открывает текст слева направо, не двигая его */
             clip-path: inset(0 100% 0 0);
         }
         /* статичный режим (пауза / посмотреть ещё раз) */
         .status-text.static {
             clip-path: none !important;
-            border-right: none;
             animation: none !important;
         }
 
+        /* Курсор — отдельный элемент, не зависит от clip-path текста */
+        .cursor {
+            display: inline-block;
+            width: 2px;
+            height: 13px;
+            background: var(--accent);
+            margin-left: 3px;
+            vertical-align: middle;
+            opacity: 0;
+        }
+        .cursor.typing  { animation: cur-blink 0.7s step-end infinite; }
+        .cursor.visible { opacity: 1; }
+
         @keyframes typing      { from { clip-path: inset(0 100% 0 0) } to { clip-path: inset(0 0% 0 0) } }
-        @keyframes blink       { 50% { border-color: transparent } }
-        @keyframes hide-cursor { to  { border-right-color: transparent } }
+        @keyframes cur-blink   { 0%, 100% { opacity: 1 } 50% { opacity: 0 } }
 
         /* Кнопка заказа */
         .order-btn {
@@ -277,7 +288,7 @@
     <div class="bottom-panel" id="bottomPanel">
         <canvas id="visualizer"></canvas>
         <div class="status-wrap">
-            <p class="status-text" id="statusText">Смотри и вспоминай...</p>
+            <p class="status-text" id="statusText">Смотри и вспоминай...</p><span class="cursor" id="cursor"></span>
         </div>
         <a href="https://www.instagram.com/foton.mag/" target="_blank" class="order-btn" id="orderBtn">ЗАКАЗАТЬ ПОСТЕР</a>
         <p class="footer-text">С любовью от @foton.mag</p>
@@ -289,6 +300,7 @@
     const bigPlay     = document.getElementById('bigPlay');
     const progressBar = document.getElementById('progressBar');
     const statusText  = document.getElementById('statusText');
+    const cursor      = document.getElementById('cursor');
     const orderBtn    = document.getElementById('orderBtn');
     const heartScreen = document.getElementById('heart-screen');
     const main        = document.getElementById('main');
@@ -354,14 +366,13 @@
         statusText.classList.remove('static');
         statusText.textContent = 'Смотри и вспоминай...';
         statusText.style.animation = 'none';
-        statusText.style.borderRight = '2px solid var(--accent)';
         statusText.style.clipPath = 'inset(0 100% 0 0)';
+        // курсор: мигает во время печати, скрывается после
+        cursor.className = 'cursor typing';
         void statusText.offsetWidth;
-        statusText.style.animation = `
-            typing 3s steps(22, end) forwards,
-            blink 0.5s step-end 3s 3,
-            hide-cursor 0s forwards 4.5s
-        `;
+        statusText.style.animation = 'typing 3s steps(22, end) forwards';
+        // убираем курсор через 4.5с (после печати + 3 мигания)
+        setTimeout(() => { cursor.className = 'cursor'; }, 4500);
     }
 
     // ── Текст: статичный (пауза, конец) ──
@@ -370,6 +381,7 @@
         statusText.style.clipPath = 'none';
         statusText.textContent = text;
         statusText.classList.add('static');
+        cursor.className = 'cursor'; // курсор скрыт
     }
 
     function showOrderBtn() { orderBtn.classList.add('show'); }
