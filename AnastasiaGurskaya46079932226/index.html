@@ -10,7 +10,7 @@
             --text-color: #fcfcfc; 
             --accent-color: #ff3366; 
             --glass-bg: rgba(255, 255, 255, 0.1);
-        } 
+        }
 
         body.light-mode {
             --bg-color: #f9f9f2; 
@@ -20,35 +20,27 @@
 
         * {
             -webkit-tap-highlight-color: transparent;
-            -webkit-touch-callout: none;
-            outline: none;
             box-sizing: border-box;
-        }
-
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            overscroll-behavior-y: none; /* Запрет болтанки, но прокрутка будет */
+            margin: 0; padding: 0;
         }
 
         body { 
             background: var(--bg-color); 
             color: var(--text-color); 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            min-height: 100vh; 
             font-family: 'Segoe UI', sans-serif; 
-            flex-direction: column; 
-            transition: background 0.8s ease, color 0.8s ease;
-            overflow-x: hidden;
-            overflow-y: auto;
+            transition: background 0.5s ease;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
 
+        /* Кнопка темы намертво в углу */
         .theme-toggle {
             position: fixed;
-            top: 20px;
+            top: env(safe-area-inset-top, 20px);
             right: 20px;
             background: var(--glass-bg);
             border: 1px solid rgba(150,150,150,0.2);
@@ -56,167 +48,109 @@
             padding: 10px;
             border-radius: 50%;
             cursor: pointer;
-            z-index: 100;
+            z-index: 999;
             font-size: 20px;
         }
         
-        .container { 
-            text-align: center; 
-            background: var(--glass-bg); 
-            padding: 30px; 
-            border-radius: 35px; 
-            box-shadow: 0 20px 60px rgba(0,0,0,0.12); 
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            width: 90%; 
-            max-width: 380px; 
-            opacity: 0; 
-            display: none; 
-            transition: all 0.8s ease;
-            z-index: 5;
-            margin-top: 60px;
-        }
-
-        /* Блок видео */
-        .video-wrapper {
-            width: 100%;
-            border-radius: 20px;
-            overflow: hidden;
-            background: #000;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            max-height: 45vh;
-        }
-
-        #media {
-            width: 100%;
-            height: 100%;
-            display: block;
-            object-fit: contain;
-        }
-
+        /* Идеальный центр для сердца */
         #heart-overlay { 
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            inset: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             background: var(--bg-color);
-            z-index: 1000;
+            z-index: 500;
             cursor: pointer;
+            transition: 0.5s;
         }
 
         .heart { 
-            font-size: 85px; 
+            font-size: 85px;
             color: var(--accent-color); 
             animation: pulse 1.5s infinite; 
-            filter: drop-shadow(0 0 15px rgba(255, 51, 102, 0.4)); 
+            filter: drop-shadow(0 0 15px rgba(255, 51, 102, 0.4));
         }
 
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
-        .heart-fall { transform: scale(0); opacity: 0; transition: all 0.7s ease; pointer-events: none; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
 
-        #visualizer { 
-            width: 100%; 
-            height: 60px; 
-            margin-bottom: 20px; 
-            border-radius: 10px; 
+        /* Контейнер плеера */
+        .container { 
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 380px;
+            background: var(--glass-bg); 
+            padding: 20px; 
+            border-radius: 30px; 
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            opacity: 0;
+            transition: opacity 0.8s ease;
         }
 
+        .video-wrapper {
+            width: 100%;
+            border-radius: 18px;
+            overflow: hidden;
+            background: #000;
+            margin-bottom: 15px;
+            aspect-ratio: 9 / 16; /* Держим пропорции смартфона */
+            max-height: 50vh; /* Чтобы не вылетало за экран */
+        }
+
+        #media { width: 100%; height: 100%; object-fit: contain; }
+
+        #visualizer { width: 100%; height: 40px; margin-bottom: 10px; }
+
+        /* Кнопка управления */
         .play-wrapper {
             position: relative;
-            width: 90px;
-            height: 90px;
-            margin: 0 auto 20px;
+            width: 70px; height: 70px;
+            margin-bottom: 15px;
         }
 
-        .progress-ring {
-            position: absolute;
-            top: 0;
-            left: 0;
-            transform: rotate(-90deg);
-        }
-
+        .progress-ring { position: absolute; top: 0; left: 0; transform: rotate(-90deg); }
         .progress-ring__circle {
             stroke: var(--accent-color);
-            stroke-dasharray: 251.32; 
-            stroke-dashoffset: 251.32;
+            stroke-dasharray: 188.5; /* 2 * PI * 30 */
+            stroke-dashoffset: 188.5;
             transition: stroke-dashoffset 0.1s;
         }
 
         .play-btn { 
             position: absolute;
-            top: 7.5px;
-            left: 7.5px;
-            width: 75px; 
-            height: 75px; 
+            top: 5px; left: 5px;
+            width: 60px; height: 60px; 
             background: var(--text-color); 
-            border-radius: 50%; 
-            border: none; 
-            cursor: pointer; 
+            border-radius: 50%; border: none;
             color: var(--bg-color); 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-            z-index: 2;
+            display: flex; align-items: center; justify-content: center; 
         }
         
-        .play-btn svg { width: 32px; height: 32px; display: block; }
+        .play-btn svg { width: 24px; height: 24px; }
 
-        .typing-container {
-            height: 20px;
-            display: flex;
-            justify-content: center;
-            width: 100%;
-        }
-
+        .typing-container { height: 20px; margin-bottom: 10px; }
         .typing-text {
-            font-size: 13px; 
-            letter-spacing: 2px; 
-            text-transform: uppercase; 
-            margin: 0;
-            display: inline-block;
-            overflow: hidden;
-            white-space: nowrap;
+            font-size: 12px; letter-spacing: 1px; text-transform: uppercase;
             border-right: 2px solid var(--accent-color);
-            width: 0;
+            white-space: nowrap; overflow: hidden; width: 0;
         }
 
-        @keyframes typing { from { width: 0 } to { width: 195px } }
-        @keyframes blink { 50% { border-color: transparent } }
+        @keyframes typing { from { width: 0 } to { width: 180px } }
         @keyframes hide-cursor { to { border-right: none } }
 
         .order-btn { 
-            margin-top: 30px; 
-            padding: 12px 28px; 
-            background: transparent; 
-            border: 1.5px solid var(--text-color); 
-            border-radius: 25px; 
-            color: var(--text-color); 
-            text-decoration: none; 
-            font-size: 14px; 
-            font-weight: bold;
-            opacity: 0; 
-            pointer-events: none; 
-            transition: opacity 1s ease; 
-            display: inline-block;
+            margin-top: 15px; padding: 10px 24px;
+            border: 1px solid var(--text-color); border-radius: 20px; 
+            color: var(--text-color); text-decoration: none; font-size: 13px; 
+            font-weight: bold; opacity: 0; transition: 1s;
         }
 
-        .order-btn:hover { background: var(--text-color); color: var(--bg-color); }
-
-        .footer-link { 
-            margin: 20px 0 40px; 
-            text-decoration: none; 
-            color: var(--text-color); 
-            font-size: 12px; 
-            opacity: 0.5; 
-            display: none; 
-            letter-spacing: 1px;
-        }
+        .footer-link { margin-top: 15px; font-size: 10px; opacity: 0.4; display: none; }
     </style>
 </head>
 <body>
@@ -225,30 +159,28 @@
 
     <div id="heart-overlay" onclick="unlockMemories()">
         <div class="heart">❤️</div>
-        <p style="margin-top: 20px; opacity: 0.7; letter-spacing: 2px; text-transform: uppercase; font-size: 13px;">Нажми, чтобы открыть</p>
+        <p style="margin-top: 15px; opacity: 0.6; font-size: 11px; letter-spacing: 1px;">НАЖМИ, ЧТОБЫ ОТКРЫТЬ</p>
     </div>
 
     <div class="container" id="player-container">
-        
         <div class="video-wrapper">
-            <video id="media" src="video.mp4" playsinline disableremoteplayback webkit-playsinline></video>
+            <video id="media" src="video.mp4" playsinline disableremoteplayback></video>
         </div>
-
+        
         <canvas id="visualizer"></canvas>
         
         <div class="play-wrapper">
-            <svg class="progress-ring" width="90" height="90">
-                <circle class="progress-ring__circle" stroke-width="4" fill="transparent" r="40" cx="45" cy="45"/>
+            <svg class="progress-ring" width="70" height="70">
+                <circle class="progress-ring__circle" stroke-width="3" fill="transparent" r="30" cx="35" cy="35"/>
             </svg>
             <button class="play-btn" id="btn">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" fill="currentColor"/></svg>
+                <svg viewBox="0 0 24 24"><path id="btn-path" d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" fill="currentColor"/></svg>
             </button>
         </div>
 
         <div class="typing-container">
-            <p id="status" class="typing-text">Смотрим моменты...</p>
+            <p id="status" class="typing-text"></p>
         </div>
-        
     </div>
 
     <a href="https://www.instagram.com/foton.mag/" target="_blank" class="order-btn" id="order-btn">ЗАКАЗАТЬ ПОСТЕР</a>
@@ -257,6 +189,7 @@
     <script>
         const media = document.getElementById('media');
         const btn = document.getElementById('btn');
+        const btnPath = document.getElementById('btn-path');
         const canvas = document.getElementById('visualizer');
         const canvasCtx = canvas.getContext('2d');
         const status = document.getElementById('status');
@@ -265,30 +198,20 @@
         const orderBtn = document.getElementById('order-btn');
         const footerText = document.getElementById('footer-text');
         const circle = document.querySelector('.progress-ring__circle');
-        const circumference = 2 * Math.PI * 40;
+        const circumference = 2 * Math.PI * 30;
 
-        const playSVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>';
-        const pauseSVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" fill="currentColor"/></svg>';
-        const replaySVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z" fill="currentColor"/></svg>';
+        const iconPause = "M6 19h4V5H6v14zm8-14v14h4V5h-4z";
+        const iconPlay = "M8 5v14l11-7z";
+        const iconReplay = "M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z";
 
-        let audioCtx, analyser, source, dataArray;
-        let isReplay = false;
-
-        function showButton() {
-            orderBtn.style.opacity = '1';
-            orderBtn.style.pointerEvents = 'auto';
-        }
+        let audioCtx, analyser, source, dataArray, isReplay = false;
 
         function setProgress(percent) {
-            const offset = circumference - (percent / 100 * circumference);
-            circle.style.strokeDashoffset = offset;
+            circle.style.strokeDashoffset = circumference - (percent / 100 * circumference);
         }
 
         media.ontimeupdate = () => {
-            if (media.duration) {
-                const percent = (media.currentTime / media.duration) * 100;
-                setProgress(percent);
-            }
+            if (media.duration) setProgress((media.currentTime / media.duration) * 100);
         };
 
         function startTyping(text = "Смотрим моменты...") {
@@ -296,63 +219,47 @@
             status.style.animation = 'none';
             status.style.borderRight = '2px solid var(--accent-color)';
             status.offsetHeight; 
-            status.style.animation = `
-                typing 3s steps(18, end) forwards, 
-                blink 0.5s step-end infinite, 
-                hide-cursor 0s forwards 4.5s
-            `;
-            setTimeout(() => { status.style.borderRight = 'none'; }, 4500);
+            status.style.animation = `typing 2s steps(20, end) forwards`;
+            setTimeout(() => { status.style.borderRight = 'none'; }, 3000);
         }
 
         function unlockMemories() {
-            heartOverlay.classList.add('heart-fall');
+            heartOverlay.style.opacity = '0';
+            heartOverlay.style.transform = 'scale(0.9)';
             setTimeout(() => {
                 heartOverlay.style.display = 'none';
-                playerContainer.style.display = 'block';
+                playerContainer.style.display = 'flex';
                 footerText.style.display = 'block';
                 setTimeout(() => {
                     playerContainer.style.opacity = '1';
-                    initAudioContext();
+                    if (!audioCtx) initAudio();
                     media.play();
                     startTyping();
-                }, 100);
-            }, 700);
+                }, 50);
+            }, 500);
         }
 
-        function initAudioContext() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                analyser = audioCtx.createAnalyser();
-                source = audioCtx.createMediaElementSource(media);
-                source.connect(analyser);
-                analyser.connect(audioCtx.destination);
-                analyser.fftSize = 128;
-                dataArray = new Uint8Array(analyser.frequencyBinCount);
-                draw();
-            }
+        function initAudio() {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioCtx.createAnalyser();
+            source = audioCtx.createMediaElementSource(media);
+            source.connect(analyser);
+            analyser.connect(audioCtx.destination);
+            analyser.fftSize = 64;
+            dataArray = new Uint8Array(analyser.frequencyBinCount);
+            draw();
         }
 
         btn.onclick = () => {
             if (isReplay) {
                 media.currentTime = 0; media.play();
-                btn.innerHTML = pauseSVG;
-                isReplay = false; 
-                startTyping();
+                btnPath.setAttribute('d', iconPause); isReplay = false; startTyping();
+            } else if (media.paused) {
+                media.play(); btnPath.setAttribute('d', iconPause); startTyping();
             } else {
-                if (media.paused) { 
-                    media.play(); 
-                    btn.innerHTML = pauseSVG;
-                    startTyping(); 
-                }
-                else { 
-                    media.pause(); 
-                    btn.innerHTML = playSVG;
-                    status.innerText = 'Пауза'; 
-                    status.style.animation = 'none';
-                    status.style.borderRight = 'none';
-                    status.style.width = 'auto';
-                    showButton(); 
-                }
+                media.pause(); btnPath.setAttribute('d', iconPlay);
+                status.innerText = 'Пауза'; status.style.animation = 'none'; status.style.borderRight = 'none'; status.style.width = 'auto';
+                orderBtn.style.opacity = '1';
             }
         };
 
@@ -361,28 +268,20 @@
             if (!analyser || media.paused) return;
             analyser.getByteFrequencyData(dataArray);
             canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
-            const barWidth = (canvas.width / dataArray.length) * 2.5;
+            const barWidth = (canvas.width / dataArray.length) * 2;
             let x = 0;
             for(let i = 0; i < dataArray.length; i++) {
-                const barHeight = dataArray[i] / 2.5;
+                let barHeight = dataArray[i] / 4;
                 canvasCtx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-color');
-                canvasCtx.beginPath();
-                const y = (canvas.height - barHeight) / 2;
-                if (canvasCtx.roundRect) { canvasCtx.roundRect(x, y, barWidth - 4, barHeight, 5); }
-                else { canvasCtx.rect(x, y, barWidth - 4, barHeight); }
-                canvasCtx.fill();
+                canvasCtx.fillRect(x, (canvas.height - barHeight) / 2, barWidth - 2, barHeight);
                 x += barWidth;
             }
         }
 
         media.onended = () => { 
-            btn.innerHTML = replaySVG;
-            status.style.animation = 'none';
-            status.style.borderRight = 'none';
-            status.style.width = 'auto';
-            status.innerText = 'Посмотреть еще раз'; 
-            isReplay = true; 
-            showButton();
+            btnPath.setAttribute('d', iconReplay); isReplay = true;
+            status.innerText = 'Посмотреть еще раз'; status.style.borderRight = 'none';
+            orderBtn.style.opacity = '1';
         };
     </script>
 </body>
