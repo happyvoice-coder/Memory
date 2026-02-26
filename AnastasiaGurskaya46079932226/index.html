@@ -114,9 +114,7 @@
         }
         #main.visible { opacity: 1; }
 
-        /* ── Видео-контейнер ──
-           JS после загрузки запишет его реальную ширину в --panel-width,
-           чтобы нижняя панель совпадала точно. */
+        /* ── Видео ── */
         .video-wrap {
             flex: 1 1 auto;
             min-height: 0;
@@ -174,10 +172,11 @@
             transition: width 0.1s linear;
         }
 
-        /* ── Нижняя панель — ширина выставляется через JS ── */
+        /* ── Нижняя панель ── */
         .bottom-panel {
             flex: 0 0 auto;
-            width: 100%; /* fallback, JS перепишет */
+            width: 100%;
+            max-width: min(100%, calc((100dvh - 180px) * 9 / 16));
             padding-top: 12px;
             display: flex;
             flex-direction: column;
@@ -193,52 +192,28 @@
             display: block;
         }
 
-        /* Статус-текст */
-        .status-wrap {
+        /* Статус-текст — точно как в аудио-версии */
+        .typing-container {
             height: 20px;
             display: flex;
             justify-content: center;
-            align-items: center;
             width: 100%;
         }
-        /* Обёртка чтобы текст рос из центра симметрично */
-        .status-inner {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            direction: rtl; /* текст "растёт" от центра влево и вправо */
-        }
-        .status-text {
+        .typing-text {
             font-size: 11px;
             letter-spacing: 2px;
             text-transform: uppercase;
             opacity: 0.7;
-            white-space: nowrap;
+            display: inline-block;
             overflow: hidden;
+            white-space: nowrap;
+            border-right: 2px solid var(--accent);
             width: 0;
-            display: inline-block;
-            direction: ltr; /* сам текст читается нормально */
-        }
-        .status-text.static {
-            width: auto !important;
-            animation: none !important;
         }
 
-        /* Курсор — отдельный span */
-        .cursor {
-            display: inline-block;
-            width: 2px;
-            height: 13px;
-            background: var(--accent);
-            margin-left: 2px;
-            vertical-align: middle;
-            opacity: 0;
-            flex-shrink: 0;
-        }
-        .cursor.typing { animation: cur-blink 0.7s step-end infinite; }
-
-        @keyframes typing    { from { width: 0 } to { width: 220px } }
-        @keyframes cur-blink { 0%, 100% { opacity: 1 } 50% { opacity: 0 } }
+        @keyframes typing      { from { width: 0 } to { width: 210px } }
+        @keyframes blink       { 50% { border-color: transparent } }
+        @keyframes hide-cursor { to { border-right: none } }
 
         /* Кнопка заказа */
         .order-btn {
@@ -293,9 +268,11 @@
 
     <div class="bottom-panel" id="bottomPanel">
         <canvas id="visualizer"></canvas>
-        <div class="status-wrap">
-            <div class="status-inner"><p class="status-text" id="statusText">Смотри и вспоминай...</p><span class="cursor" id="cursor"></span></div>
+
+        <div class="typing-container">
+            <p id="statusText" class="typing-text">Смотри и вспоминай...</p>
         </div>
+
         <a href="https://www.instagram.com/foton.mag/" target="_blank" class="order-btn" id="orderBtn">ЗАКАЗАТЬ ПОСТЕР</a>
         <p class="footer-text">С любовью от @foton.mag</p>
     </div>
@@ -305,8 +282,7 @@
     const video       = document.getElementById('video');
     const bigPlay     = document.getElementById('bigPlay');
     const progressBar = document.getElementById('progressBar');
-    const statusText  = document.getElementById('statusText');
-    const cursor      = document.getElementById('cursor');
+    const status      = document.getElementById('statusText');
     const orderBtn    = document.getElementById('orderBtn');
     const heartScreen = document.getElementById('heart-screen');
     const main        = document.getElementById('main');
@@ -315,12 +291,12 @@
     const videoWrap   = document.getElementById('videoWrap');
     const bottomPanel = document.getElementById('bottomPanel');
 
-    // Синхронизируем ширину нижней панели с реальной шириной видео-блока
-    function syncPanelWidth() {
+    // Синхронизируем ширину панели с видео
+    function syncWidth() {
         const w = videoWrap.getBoundingClientRect().width;
         if (w > 0) bottomPanel.style.width = w + 'px';
     }
-    window.addEventListener('resize', syncPanelWidth);
+    window.addEventListener('resize', syncWidth);
 
     // Тема
     document.getElementById('themeBtn').onclick = () => document.body.classList.toggle('light');
@@ -367,27 +343,18 @@
         }
     }
 
-    // ── Текст: режим печати ──
+    // ── Анимация печати (как в аудио-версии) ──
     function startTyping() {
-        statusText.classList.remove('static');
-        statusText.textContent = 'Смотри и вспоминай...';
-        statusText.style.animation = 'none';
-        statusText.style.width = '0';
-        cursor.className = 'cursor typing';
-        void statusText.offsetWidth;
-        statusText.style.animation = 'typing 3s steps(22, end) forwards';
-        clearTimeout(window._cursorTimer);
-        window._cursorTimer = setTimeout(() => { cursor.className = 'cursor'; }, 4500);
-    }
-
-    // ── Текст: статичный (пауза, конец) ──
-    function setStatus(text) {
-        clearTimeout(window._cursorTimer);
-        statusText.style.animation = 'none';
-        statusText.style.width = 'auto';
-        statusText.textContent = text;
-        statusText.classList.add('static');
-        cursor.className = 'cursor';
+        status.innerText = 'Смотри и вспоминай...';
+        status.style.animation = 'none';
+        status.style.borderRight = '2px solid var(--accent)';
+        status.style.width = '0';
+        status.offsetHeight; // reflow
+        status.style.animation = `
+            typing 3s steps(22, end) forwards,
+            blink 0.5s step-end 3s 3,
+            hide-cursor 0s forwards 4.5s
+        `;
     }
 
     function showOrderBtn() { orderBtn.classList.add('show'); }
@@ -400,7 +367,7 @@
             main.style.display = 'flex';
             requestAnimationFrame(() => requestAnimationFrame(() => {
                 main.classList.add('visible');
-                syncPanelWidth(); // синхронизируем ширину как только всё отрисовалось
+                syncWidth();
                 startTyping();
                 video.muted = false;
                 const p = video.play();
@@ -433,7 +400,6 @@
 
     video.onplay = () => {
         bigPlay.classList.add('hidden');
-        // убираем «Пауза» — запускаем печать снова
         startTyping();
         initEqualizer();
         if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
@@ -443,21 +409,25 @@
         if (!video.ended) {
             bigPlay.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>';
             bigPlay.classList.remove('hidden');
-            setStatus('Пауза');
+            status.innerText = 'Пауза';
+            status.style.animation = 'none';
+            status.style.borderRight = 'none';
+            status.style.width = 'auto';
             showOrderBtn();
         }
     };
 
     video.ontimeupdate = () => {
-        if (video.duration) {
-            progressBar.style.width = (video.currentTime / video.duration * 100) + '%';
-        }
+        if (video.duration) progressBar.style.width = (video.currentTime / video.duration * 100) + '%';
     };
 
     video.onended = () => {
         bigPlay.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>';
         bigPlay.classList.remove('hidden');
-        setStatus('Посмотреть ещё раз');
+        status.innerText = 'Посмотреть ещё раз';
+        status.style.animation = 'none';
+        status.style.borderRight = 'none';
+        status.style.width = 'auto';
         showOrderBtn();
     };
 </script>
