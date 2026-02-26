@@ -10,43 +10,44 @@
             --text-color: #fcfcfc; 
             --accent-color: #ff3366; 
             --glass-bg: rgba(255, 255, 255, 0.1);
-        } [cite: 67]
+        } 
 
         body.light-mode {
             --bg-color: #f9f9f2; 
             --text-color: #464544; 
             --glass-bg: rgba(0, 0, 0, 0.05);
-        } [cite: 68]
+        }
 
         * {
             -webkit-tap-highlight-color: transparent;
             -webkit-touch-callout: none;
             outline: none;
             box-sizing: border-box;
-        } [cite: 69]
+        }
 
         html, body {
             height: 100%;
             margin: 0;
             padding: 0;
-            /* Запрещаем браузеру "пружинить" и обновлять страницу по свайпу вниз */
-            overscroll-behavior-y: none; 
+            overscroll-behavior-y: none; /* Запрет болтанки, но прокрутка будет */
         }
 
         body { 
             background: var(--bg-color); 
             color: var(--text-color); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
             font-family: 'Segoe UI', sans-serif; 
-            transition: background 0.8s ease, color 0.8s ease; [cite: 71, 72]
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            overflow-y: auto; /* Разрешаем скролл, если контент большой */
+            flex-direction: column; 
+            transition: background 0.8s ease, color 0.8s ease;
             overflow-x: hidden;
+            overflow-y: auto;
         }
 
         .theme-toggle {
-            position: fixed; /* Фиксируем, чтобы не уплывала */
+            position: fixed;
             top: 20px;
             right: 20px;
             background: var(--glass-bg);
@@ -57,8 +58,44 @@
             cursor: pointer;
             z-index: 100;
             font-size: 20px;
-        } [cite: 74, 75]
+        }
         
+        .container { 
+            text-align: center; 
+            background: var(--glass-bg); 
+            padding: 30px; 
+            border-radius: 35px; 
+            box-shadow: 0 20px 60px rgba(0,0,0,0.12); 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            width: 90%; 
+            max-width: 380px; 
+            opacity: 0; 
+            display: none; 
+            transition: all 0.8s ease;
+            z-index: 5;
+            margin-top: 60px;
+        }
+
+        /* Блок видео */
+        .video-wrapper {
+            width: 100%;
+            border-radius: 20px;
+            overflow: hidden;
+            background: #000;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            max-height: 45vh;
+        }
+
+        #media {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: contain;
+        }
+
         #heart-overlay { 
             position: fixed;
             top: 0; left: 0;
@@ -68,104 +105,118 @@
             align-items: center;
             justify-content: center;
             background: var(--bg-color);
-            z-index: 50;
+            z-index: 1000;
             cursor: pointer;
-        } 
-
-        .heart { 
-            font-size: 80px;
-            color: var(--accent-color); 
-            animation: pulse 1.5s infinite; 
-            filter: drop-shadow(0 0 15px rgba(255, 51, 102, 0.4));
-        } [cite: 80, 81]
-
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } } [cite: 82]
-        .heart-fall { transform: scale(0); opacity: 0; transition: all 0.6s ease; }
-
-        .container { 
-            text-align: center;
-            background: var(--glass-bg); 
-            padding: 20px; 
-            border-radius: 30px; 
-            box-shadow: 0 20px 60px rgba(0,0,0,0.12); 
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            width: 90%; 
-            max-width: 380px; 
-            margin: 80px auto 20px; /* Отступ сверху для кнопки темы */
-            opacity: 0; 
-            display: none; 
-            transition: opacity 0.8s ease;
-        } [cite: 76, 77]
-
-        .video-wrapper {
-            width: 100%;
-            border-radius: 20px;
-            overflow: hidden;
-            background: #000;
-            margin-bottom: 15px;
-            /* Ограничиваем высоту видео, чтобы всё влезло на экран */
-            max-height: 45vh; 
         }
 
-        #media { width: 100%; height: 100%; object-fit: contain; display: block; }
+        .heart { 
+            font-size: 85px; 
+            color: var(--accent-color); 
+            animation: pulse 1.5s infinite; 
+            filter: drop-shadow(0 0 15px rgba(255, 51, 102, 0.4)); 
+        }
+
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+        .heart-fall { transform: scale(0); opacity: 0; transition: all 0.7s ease; pointer-events: none; }
 
         #visualizer { 
-            width: 100%;
-            height: 50px; 
-            margin-bottom: 10px; 
-        } [cite: 84]
+            width: 100%; 
+            height: 60px; 
+            margin-bottom: 20px; 
+            border-radius: 10px; 
+        }
 
         .play-wrapper {
             position: relative;
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 15px;
-        } [cite: 85]
+            width: 90px;
+            height: 90px;
+            margin: 0 auto 20px;
+        }
 
-        .progress-ring { position: absolute; top: 0; left: 0; transform: rotate(-90deg); }
+        .progress-ring {
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform: rotate(-90deg);
+        }
 
         .progress-ring__circle {
             stroke: var(--accent-color);
-            stroke-dasharray: 226.19; 
-            stroke-dashoffset: 226.19;
+            stroke-dasharray: 251.32; 
+            stroke-dashoffset: 251.32;
             transition: stroke-dashoffset 0.1s;
-        } [cite: 87]
+        }
 
         .play-btn { 
             position: absolute;
-            top: 5px; left: 5px;
-            width: 70px; height: 70px; 
+            top: 7.5px;
+            left: 7.5px;
+            width: 75px; 
+            height: 75px; 
             background: var(--text-color); 
             border-radius: 50%; 
-            border: none; cursor: pointer; color: var(--bg-color); 
-            display: flex; align-items: center; justify-content: center; 
+            border: none; 
+            cursor: pointer; 
+            color: var(--bg-color); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
             box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-        } [cite: 88, 89]
+            z-index: 2;
+        }
         
-        .play-btn svg { width: 28px; height: 28px; } [cite: 91]
+        .play-btn svg { width: 32px; height: 32px; display: block; }
 
-        .typing-container { height: 20px; display: flex; justify-content: center; } [cite: 92]
+        .typing-container {
+            height: 20px;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
 
         .typing-text {
-            font-size: 13px; letter-spacing: 2px; text-transform: uppercase;
+            font-size: 13px; 
+            letter-spacing: 2px; 
+            text-transform: uppercase; 
+            margin: 0;
+            display: inline-block;
+            overflow: hidden;
+            white-space: nowrap;
             border-right: 2px solid var(--accent-color);
-            white-space: nowrap; overflow: hidden; width: 0;
-        } [cite: 93, 94]
+            width: 0;
+        }
 
-        @keyframes typing { from { width: 0 } to { width: 190px } }
+        @keyframes typing { from { width: 0 } to { width: 195px } }
         @keyframes blink { 50% { border-color: transparent } }
         @keyframes hide-cursor { to { border-right: none } }
 
         .order-btn { 
-            margin: 20px 0; padding: 12px 28px; background: transparent; 
-            border: 1.5px solid var(--text-color); border-radius: 25px; 
-            color: var(--text-color); text-decoration: none; font-size: 14px; 
-            font-weight: bold; display: inline-block; opacity: 0; pointer-events: none; transition: opacity 1s ease; 
-        } [cite: 95, 96]
+            margin-top: 30px; 
+            padding: 12px 28px; 
+            background: transparent; 
+            border: 1.5px solid var(--text-color); 
+            border-radius: 25px; 
+            color: var(--text-color); 
+            text-decoration: none; 
+            font-size: 14px; 
+            font-weight: bold;
+            opacity: 0; 
+            pointer-events: none; 
+            transition: opacity 1s ease; 
+            display: inline-block;
+        }
 
-        .footer-link { padding-bottom: 30px; font-size: 11px; opacity: 0.5; display: none; } [cite: 98, 99]
+        .order-btn:hover { background: var(--text-color); color: var(--bg-color); }
+
+        .footer-link { 
+            margin: 20px 0 40px; 
+            text-decoration: none; 
+            color: var(--text-color); 
+            font-size: 12px; 
+            opacity: 0.5; 
+            display: none; 
+            letter-spacing: 1px;
+        }
     </style>
 </head>
 <body>
@@ -174,25 +225,30 @@
 
     <div id="heart-overlay" onclick="unlockMemories()">
         <div class="heart">❤️</div>
-        <p style="margin-top: 20px; opacity: 0.7; letter-spacing: 2px; text-transform: uppercase; font-size: 12px;">Нажми, чтобы открыть</p>
+        <p style="margin-top: 20px; opacity: 0.7; letter-spacing: 2px; text-transform: uppercase; font-size: 13px;">Нажми, чтобы открыть</p>
     </div>
 
     <div class="container" id="player-container">
+        
         <div class="video-wrapper">
             <video id="media" src="video.mp4" playsinline disableremoteplayback webkit-playsinline></video>
         </div>
+
         <canvas id="visualizer"></canvas>
+        
         <div class="play-wrapper">
-            <svg class="progress-ring" width="80" height="80">
-                <circle class="progress-ring__circle" stroke-width="4" fill="transparent" r="36" cx="40" cy="40"/>
+            <svg class="progress-ring" width="90" height="90">
+                <circle class="progress-ring__circle" stroke-width="4" fill="transparent" r="40" cx="45" cy="45"/>
             </svg>
             <button class="play-btn" id="btn">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" fill="currentColor"/></svg>
             </button>
         </div>
+
         <div class="typing-container">
             <p id="status" class="typing-text">Смотрим моменты...</p>
         </div>
+        
     </div>
 
     <a href="https://www.instagram.com/foton.mag/" target="_blank" class="order-btn" id="order-btn">ЗАКАЗАТЬ ПОСТЕР</a>
@@ -209,30 +265,44 @@
         const orderBtn = document.getElementById('order-btn');
         const footerText = document.getElementById('footer-text');
         const circle = document.querySelector('.progress-ring__circle');
-        const circumference = 2 * Math.PI * 36;
+        const circumference = 2 * Math.PI * 40;
 
         const playSVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>';
         const pauseSVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" fill="currentColor"/></svg>';
         const replaySVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z" fill="currentColor"/></svg>';
-        
-        let audioCtx, analyser, source, dataArray, isReplay = false;
+
+        let audioCtx, analyser, source, dataArray;
+        let isReplay = false;
+
+        function showButton() {
+            orderBtn.style.opacity = '1';
+            orderBtn.style.pointerEvents = 'auto';
+        }
 
         function setProgress(percent) {
-            circle.style.strokeDashoffset = circumference - (percent / 100 * circumference);
-        } [cite: 109]
+            const offset = circumference - (percent / 100 * circumference);
+            circle.style.strokeDashoffset = offset;
+        }
 
         media.ontimeupdate = () => {
-            if (media.duration) setProgress((media.currentTime / media.duration) * 100);
-        }; [cite: 110]
+            if (media.duration) {
+                const percent = (media.currentTime / media.duration) * 100;
+                setProgress(percent);
+            }
+        };
 
         function startTyping(text = "Смотрим моменты...") {
             status.innerText = text;
             status.style.animation = 'none';
             status.style.borderRight = '2px solid var(--accent-color)';
             status.offsetHeight; 
-            status.style.animation = `typing 2s steps(20, end) forwards, blink 0.5s step-end infinite, hide-cursor 0s forwards 3s`;
-            setTimeout(() => { status.style.borderRight = 'none'; }, 3000);
-        } [cite: 111, 112]
+            status.style.animation = `
+                typing 3s steps(18, end) forwards, 
+                blink 0.5s step-end infinite, 
+                hide-cursor 0s forwards 4.5s
+            `;
+            setTimeout(() => { status.style.borderRight = 'none'; }, 4500);
+        }
 
         function unlockMemories() {
             heartOverlay.classList.add('heart-fall');
@@ -242,36 +312,49 @@
                 footerText.style.display = 'block';
                 setTimeout(() => {
                     playerContainer.style.opacity = '1';
-                    if (!audioCtx) initAudio();
+                    initAudioContext();
                     media.play();
                     startTyping();
-                }, 50);
-            }, 600);
-        } [cite: 113, 114]
+                }, 100);
+            }, 700);
+        }
 
-        function initAudio() {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            analyser = audioCtx.createAnalyser();
-            source = audioCtx.createMediaElementSource(media);
-            source.connect(analyser);
-            analyser.connect(audioCtx.destination);
-            analyser.fftSize = 128;
-            dataArray = new Uint8Array(analyser.frequencyBinCount);
-            draw();
-        } [cite: 116, 117]
+        function initAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioCtx.createAnalyser();
+                source = audioCtx.createMediaElementSource(media);
+                source.connect(analyser);
+                analyser.connect(audioCtx.destination);
+                analyser.fftSize = 128;
+                dataArray = new Uint8Array(analyser.frequencyBinCount);
+                draw();
+            }
+        }
 
         btn.onclick = () => {
             if (isReplay) {
                 media.currentTime = 0; media.play();
-                btn.innerHTML = pauseSVG; isReplay = false; startTyping();
-            } else if (media.paused) {
-                media.play(); btn.innerHTML = pauseSVG; startTyping();
+                btn.innerHTML = pauseSVG;
+                isReplay = false; 
+                startTyping();
             } else {
-                media.pause(); btn.innerHTML = playSVG;
-                status.innerText = 'Пауза'; status.style.animation = 'none'; status.style.borderRight = 'none'; status.style.width = 'auto';
-                orderBtn.style.opacity = '1'; orderBtn.style.pointerEvents = 'auto';
+                if (media.paused) { 
+                    media.play(); 
+                    btn.innerHTML = pauseSVG;
+                    startTyping(); 
+                }
+                else { 
+                    media.pause(); 
+                    btn.innerHTML = playSVG;
+                    status.innerText = 'Пауза'; 
+                    status.style.animation = 'none';
+                    status.style.borderRight = 'none';
+                    status.style.width = 'auto';
+                    showButton(); 
+                }
             }
-        }; [cite: 118, 119, 120, 121]
+        };
 
         function draw() {
             requestAnimationFrame(draw);
@@ -281,18 +364,26 @@
             const barWidth = (canvas.width / dataArray.length) * 2.5;
             let x = 0;
             for(let i = 0; i < dataArray.length; i++) {
-                let barHeight = dataArray[i] / 4;
+                const barHeight = dataArray[i] / 2.5;
                 canvasCtx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-color');
-                canvasCtx.fillRect(x, (canvas.height - barHeight) / 2, barWidth - 2, barHeight);
+                canvasCtx.beginPath();
+                const y = (canvas.height - barHeight) / 2;
+                if (canvasCtx.roundRect) { canvasCtx.roundRect(x, y, barWidth - 4, barHeight, 5); }
+                else { canvasCtx.rect(x, y, barWidth - 4, barHeight); }
+                canvasCtx.fill();
                 x += barWidth;
             }
-        } [cite: 122, 123, 124, 125]
+        }
 
         media.onended = () => { 
-            btn.innerHTML = replaySVG; isReplay = true;
-            status.innerText = 'Посмотреть еще раз'; status.style.animation = 'none'; status.style.borderRight = 'none';
-            orderBtn.style.opacity = '1'; orderBtn.style.pointerEvents = 'auto';
-        }; [cite: 130]
+            btn.innerHTML = replaySVG;
+            status.style.animation = 'none';
+            status.style.borderRight = 'none';
+            status.style.width = 'auto';
+            status.innerText = 'Посмотреть еще раз'; 
+            isReplay = true; 
+            showButton();
+        };
     </script>
 </body>
 </html>
