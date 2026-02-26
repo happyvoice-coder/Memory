@@ -10,53 +10,55 @@
             --text-color: #fcfcfc; 
             --accent-color: #ff3366; 
             --glass-bg: rgba(255, 255, 255, 0.1);
-        } 
+        } [cite: 67]
 
         body.light-mode {
             --bg-color: #f9f9f2; 
             --text-color: #464544; 
             --glass-bg: rgba(0, 0, 0, 0.05);
-        }
+        } [cite: 68]
 
         * {
             -webkit-tap-highlight-color: transparent;
             -webkit-touch-callout: none;
             outline: none;
             box-sizing: border-box;
-        }
+        } [cite: 69]
 
-        html, body { 
-            height: 100%; 
-            margin: 0; 
-            overflow: hidden; /* Убираем лишнюю прокрутку и "болтанку" */
-            overscroll-behavior-y: none; /* Запрещаем контенту "ездить" */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            /* Запрещаем браузеру "пружинить" и обновлять страницу по свайпу вниз */
+            overscroll-behavior-y: none; 
         }
 
         body { 
             background: var(--bg-color); 
             color: var(--text-color); 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
             font-family: 'Segoe UI', sans-serif; 
-            transition: background 0.8s ease, color 0.8s ease;
+            transition: background 0.8s ease, color 0.8s ease; [cite: 71, 72]
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-y: auto; /* Разрешаем скролл, если контент большой */
+            overflow-x: hidden;
         }
 
         .theme-toggle {
-            position: fixed;
-            top: 15px;
-            right: 15px;
+            position: fixed; /* Фиксируем, чтобы не уплывала */
+            top: 20px;
+            right: 20px;
             background: var(--glass-bg);
             border: 1px solid rgba(150,150,150,0.2);
             color: var(--text-color);
-            padding: 8px;
+            padding: 10px;
             border-radius: 50%;
             cursor: pointer;
             z-index: 100;
-            font-size: 18px;
-        }
+            font-size: 20px;
+        } [cite: 74, 75]
         
-        /* Сердце теперь в отдельном слое для идеальной центровки */
         #heart-overlay { 
             position: fixed;
             top: 0; left: 0;
@@ -68,40 +70,34 @@
             background: var(--bg-color);
             z-index: 50;
             cursor: pointer;
-        }
+        } 
 
         .heart { 
-            font-size: 90px;
+            font-size: 80px;
             color: var(--accent-color); 
             animation: pulse 1.5s infinite; 
             filter: drop-shadow(0 0 15px rgba(255, 51, 102, 0.4));
-        }
+        } [cite: 80, 81]
 
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
-        
-        .heart-fall { 
-            opacity: 0; 
-            transform: scale(0.8);
-            transition: all 0.5s ease; 
-            pointer-events: none;
-        }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } } [cite: 82]
+        .heart-fall { transform: scale(0); opacity: 0; transition: all 0.6s ease; }
 
         .container { 
             text-align: center;
             background: var(--glass-bg); 
-            padding: 25px; 
-            border-radius: 35px; 
+            padding: 20px; 
+            border-radius: 30px; 
             box-shadow: 0 20px 60px rgba(0,0,0,0.12); 
             border: 1px solid rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
-            width: 92%; 
-            max-width: 400px; 
+            width: 90%; 
+            max-width: 380px; 
+            margin: 80px auto 20px; /* Отступ сверху для кнопки темы */
             opacity: 0; 
             display: none; 
             transition: opacity 0.8s ease;
-            margin-top: 40px; /* Отступ от кнопки темы */
-        }
+        } [cite: 76, 77]
 
         .video-wrapper {
             width: 100%;
@@ -109,23 +105,24 @@
             overflow: hidden;
             background: #000;
             margin-bottom: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            /* Ограничиваем высоту видео, чтобы всё влезло на экран */
+            max-height: 45vh; 
         }
 
-        #media { width: 100%; display: block; }
+        #media { width: 100%; height: 100%; object-fit: contain; display: block; }
 
         #visualizer { 
             width: 100%;
             height: 50px; 
             margin-bottom: 10px; 
-        }
+        } [cite: 84]
 
         .play-wrapper {
             position: relative;
             width: 80px;
             height: 80px;
             margin: 0 auto 15px;
-        }
+        } [cite: 85]
 
         .progress-ring { position: absolute; top: 0; left: 0; transform: rotate(-90deg); }
 
@@ -134,7 +131,7 @@
             stroke-dasharray: 226.19; 
             stroke-dashoffset: 226.19;
             transition: stroke-dashoffset 0.1s;
-        }
+        } [cite: 87]
 
         .play-btn { 
             position: absolute;
@@ -145,29 +142,30 @@
             border: none; cursor: pointer; color: var(--bg-color); 
             display: flex; align-items: center; justify-content: center; 
             box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-        }
+        } [cite: 88, 89]
         
-        .play-btn svg { width: 28px; height: 28px; }
+        .play-btn svg { width: 28px; height: 28px; } [cite: 91]
 
-        .typing-container { height: 20px; display: flex; justify-content: center; }
+        .typing-container { height: 20px; display: flex; justify-content: center; } [cite: 92]
 
         .typing-text {
             font-size: 13px; letter-spacing: 2px; text-transform: uppercase;
             border-right: 2px solid var(--accent-color);
             white-space: nowrap; overflow: hidden; width: 0;
-        }
+        } [cite: 93, 94]
 
-        @keyframes typing { from { width: 0 } to { width: 210px } }
+        @keyframes typing { from { width: 0 } to { width: 190px } }
         @keyframes blink { 50% { border-color: transparent } }
+        @keyframes hide-cursor { to { border-right: none } }
 
         .order-btn { 
-            margin-top: 25px; padding: 12px 28px; background: transparent; 
+            margin: 20px 0; padding: 12px 28px; background: transparent; 
             border: 1.5px solid var(--text-color); border-radius: 25px; 
             color: var(--text-color); text-decoration: none; font-size: 14px; 
-            font-weight: bold; opacity: 0; pointer-events: none; transition: opacity 1s ease; 
-        }
+            font-weight: bold; display: inline-block; opacity: 0; pointer-events: none; transition: opacity 1s ease; 
+        } [cite: 95, 96]
 
-        .footer-link { margin-top: 15px; font-size: 11px; opacity: 0.5; display: none; }
+        .footer-link { padding-bottom: 30px; font-size: 11px; opacity: 0.5; display: none; } [cite: 98, 99]
     </style>
 </head>
 <body>
@@ -183,9 +181,7 @@
         <div class="video-wrapper">
             <video id="media" src="video.mp4" playsinline disableremoteplayback webkit-playsinline></video>
         </div>
-        
         <canvas id="visualizer"></canvas>
-        
         <div class="play-wrapper">
             <svg class="progress-ring" width="80" height="80">
                 <circle class="progress-ring__circle" stroke-width="4" fill="transparent" r="36" cx="40" cy="40"/>
@@ -194,11 +190,13 @@
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" fill="currentColor"/></svg>
             </button>
         </div>
-
         <div class="typing-container">
             <p id="status" class="typing-text">Смотрим моменты...</p>
         </div>
     </div>
+
+    <a href="https://www.instagram.com/foton.mag/" target="_blank" class="order-btn" id="order-btn">ЗАКАЗАТЬ ПОСТЕР</a>
+    <p class="footer-link" id="footer-text">С любовью от @foton.mag</p>
 
     <script>
         const media = document.getElementById('media');
@@ -208,6 +206,8 @@
         const status = document.getElementById('status');
         const heartOverlay = document.getElementById('heart-overlay');
         const playerContainer = document.getElementById('player-container');
+        const orderBtn = document.getElementById('order-btn');
+        const footerText = document.getElementById('footer-text');
         const circle = document.querySelector('.progress-ring__circle');
         const circumference = 2 * Math.PI * 36;
 
@@ -219,36 +219,35 @@
 
         function setProgress(percent) {
             circle.style.strokeDashoffset = circumference - (percent / 100 * circumference);
-        }
+        } [cite: 109]
 
         media.ontimeupdate = () => {
             if (media.duration) setProgress((media.currentTime / media.duration) * 100);
-        };
+        }; [cite: 110]
 
         function startTyping(text = "Смотрим моменты...") {
             status.innerText = text;
             status.style.animation = 'none';
             status.style.borderRight = '2px solid var(--accent-color)';
             status.offsetHeight; 
-            status.style.animation = `typing 2s steps(20, end) forwards, blink 0.5s step-end infinite`;
-            
-            // Убираем красную полоску через 3 сек
+            status.style.animation = `typing 2s steps(20, end) forwards, blink 0.5s step-end infinite, hide-cursor 0s forwards 3s`;
             setTimeout(() => { status.style.borderRight = 'none'; }, 3000);
-        }
+        } [cite: 111, 112]
 
         function unlockMemories() {
             heartOverlay.classList.add('heart-fall');
             setTimeout(() => {
                 heartOverlay.style.display = 'none';
                 playerContainer.style.display = 'block';
+                footerText.style.display = 'block';
                 setTimeout(() => {
                     playerContainer.style.opacity = '1';
                     if (!audioCtx) initAudio();
                     media.play();
                     startTyping();
                 }, 50);
-            }, 500);
-        }
+            }, 600);
+        } [cite: 113, 114]
 
         function initAudio() {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -259,7 +258,7 @@
             analyser.fftSize = 128;
             dataArray = new Uint8Array(analyser.frequencyBinCount);
             draw();
-        }
+        } [cite: 116, 117]
 
         btn.onclick = () => {
             if (isReplay) {
@@ -270,30 +269,30 @@
             } else {
                 media.pause(); btn.innerHTML = playSVG;
                 status.innerText = 'Пауза'; status.style.animation = 'none'; status.style.borderRight = 'none'; status.style.width = 'auto';
+                orderBtn.style.opacity = '1'; orderBtn.style.pointerEvents = 'auto';
             }
-        };
+        }; [cite: 118, 119, 120, 121]
 
         function draw() {
             requestAnimationFrame(draw);
             if (!analyser || media.paused) return;
             analyser.getByteFrequencyData(dataArray);
             canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            const barWidth = (canvas.width / dataArray.length) * 2;
+            const barWidth = (canvas.width / dataArray.length) * 2.5;
             let x = 0;
             for(let i = 0; i < dataArray.length; i++) {
                 let barHeight = dataArray[i] / 4;
                 canvasCtx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-color');
-                // Рисуем симметричный эквалайзер
                 canvasCtx.fillRect(x, (canvas.height - barHeight) / 2, barWidth - 2, barHeight);
                 x += barWidth;
             }
-        }
+        } [cite: 122, 123, 124, 125]
 
         media.onended = () => { 
             btn.innerHTML = replaySVG; isReplay = true;
             status.innerText = 'Посмотреть еще раз'; status.style.animation = 'none'; status.style.borderRight = 'none';
-        };
+            orderBtn.style.opacity = '1'; orderBtn.style.pointerEvents = 'auto';
+        }; [cite: 130]
     </script>
 </body>
 </html>
