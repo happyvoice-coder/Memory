@@ -200,7 +200,13 @@
             justify-content: center;
             align-items: center;
             width: 100%;
-            position: relative;
+        }
+        /* Обёртка чтобы текст рос из центра симметрично */
+        .status-inner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            direction: rtl; /* текст "растёт" от центра влево и вправо */
         }
         .status-text {
             font-size: 11px;
@@ -208,31 +214,31 @@
             text-transform: uppercase;
             opacity: 0.7;
             white-space: nowrap;
+            overflow: hidden;
+            width: 0;
             display: inline-block;
-            /* clip-path открывает текст слева направо, не двигая его */
-            clip-path: inset(0 100% 0 0);
+            direction: ltr; /* сам текст читается нормально */
         }
-        /* статичный режим (пауза / посмотреть ещё раз) */
         .status-text.static {
-            clip-path: none !important;
+            width: auto !important;
             animation: none !important;
         }
 
-        /* Курсор — отдельный элемент, не зависит от clip-path текста */
+        /* Курсор — отдельный span */
         .cursor {
             display: inline-block;
             width: 2px;
             height: 13px;
             background: var(--accent);
-            margin-left: 3px;
+            margin-left: 2px;
             vertical-align: middle;
             opacity: 0;
+            flex-shrink: 0;
         }
-        .cursor.typing  { animation: cur-blink 0.7s step-end infinite; }
-        .cursor.visible { opacity: 1; }
+        .cursor.typing { animation: cur-blink 0.7s step-end infinite; }
 
-        @keyframes typing      { from { clip-path: inset(0 100% 0 0) } to { clip-path: inset(0 0% 0 0) } }
-        @keyframes cur-blink   { 0%, 100% { opacity: 1 } 50% { opacity: 0 } }
+        @keyframes typing    { from { width: 0 } to { width: 220px } }
+        @keyframes cur-blink { 0%, 100% { opacity: 1 } 50% { opacity: 0 } }
 
         /* Кнопка заказа */
         .order-btn {
@@ -288,7 +294,7 @@
     <div class="bottom-panel" id="bottomPanel">
         <canvas id="visualizer"></canvas>
         <div class="status-wrap">
-            <p class="status-text" id="statusText">Смотри и вспоминай...</p><span class="cursor" id="cursor"></span>
+            <div class="status-inner"><p class="status-text" id="statusText">Смотри и вспоминай...</p><span class="cursor" id="cursor"></span></div>
         </div>
         <a href="https://www.instagram.com/foton.mag/" target="_blank" class="order-btn" id="orderBtn">ЗАКАЗАТЬ ПОСТЕР</a>
         <p class="footer-text">С любовью от @foton.mag</p>
@@ -366,22 +372,22 @@
         statusText.classList.remove('static');
         statusText.textContent = 'Смотри и вспоминай...';
         statusText.style.animation = 'none';
-        statusText.style.clipPath = 'inset(0 100% 0 0)';
-        // курсор: мигает во время печати, скрывается после
+        statusText.style.width = '0';
         cursor.className = 'cursor typing';
         void statusText.offsetWidth;
         statusText.style.animation = 'typing 3s steps(22, end) forwards';
-        // убираем курсор через 4.5с (после печати + 3 мигания)
-        setTimeout(() => { cursor.className = 'cursor'; }, 4500);
+        clearTimeout(window._cursorTimer);
+        window._cursorTimer = setTimeout(() => { cursor.className = 'cursor'; }, 4500);
     }
 
     // ── Текст: статичный (пауза, конец) ──
     function setStatus(text) {
+        clearTimeout(window._cursorTimer);
         statusText.style.animation = 'none';
-        statusText.style.clipPath = 'none';
+        statusText.style.width = 'auto';
         statusText.textContent = text;
         statusText.classList.add('static');
-        cursor.className = 'cursor'; // курсор скрыт
+        cursor.className = 'cursor';
     }
 
     function showOrderBtn() { orderBtn.classList.add('show'); }
