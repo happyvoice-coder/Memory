@@ -25,10 +25,9 @@
             box-sizing: border-box;
         }
 
-        html, body { height: 100%; }
+        html, body { height: 100%; margin: 0; }
 
         body { 
-            margin: 0;
             background: var(--bg-color); 
             color: var(--text-color); 
             display: flex; 
@@ -58,27 +57,34 @@
         .container { 
             text-align: center;
             background: var(--glass-bg); 
-            padding: 40px; 
+            padding: 25px; 
             border-radius: 35px; 
             box-shadow: 0 20px 60px rgba(0,0,0,0.12); 
             border: 1px solid rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
-            width: 85%; 
-            max-width: 400px; /* Немного увеличил для видео */
+            width: 90%; 
+            max-width: 420px; 
             opacity: 0; 
             display: none; 
             transition: all 0.8s ease;
             z-index: 5;
         }
 
-        /* Стили для видео */
+        /* Обертка для видео, чтобы оно было крупным и аккуратным */
+        .video-wrapper {
+            width: 100%;
+            border-radius: 20px;
+            overflow: hidden;
+            background: #000;
+            margin-bottom: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            line-height: 0;
+        }
+
         #media {
             width: 100%;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            background: #000;
+            height: auto;
             display: block;
         }
 
@@ -101,31 +107,31 @@
 
         #visualizer { 
             width: 100%;
-            height: 60px; /* Сделал чуть меньше, чтобы с видео смотрелось гармонично */
-            margin-bottom: 20px; 
+            height: 50px; 
+            margin-bottom: 15px; 
             border-radius: 10px; 
         }
 
         .play-wrapper {
             position: relative;
-            width: 90px;
-            height: 90px;
-            margin: 0 auto 20px;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 15px;
         }
 
         .progress-ring { position: absolute; top: 0; left: 0; transform: rotate(-90deg); }
 
         .progress-ring__circle {
             stroke: var(--accent-color);
-            stroke-dasharray: 251.32; 
-            stroke-dashoffset: 251.32;
+            stroke-dasharray: 226.19; /* Подправлено под размер 80px */
+            stroke-dashoffset: 226.19;
             transition: stroke-dashoffset 0.1s;
         }
 
         .play-btn { 
             position: absolute;
-            top: 7.5px; left: 7.5px;
-            width: 75px; height: 75px; 
+            top: 5px; left: 5px;
+            width: 70px; height: 70px; 
             background: var(--text-color); 
             border-radius: 50%; 
             border: none; cursor: pointer; color: var(--bg-color); 
@@ -134,7 +140,7 @@
             transition: 0.3s; z-index: 2;
         }
         
-        .play-btn svg { width: 32px; height: 32px; display: block; }
+        .play-btn svg { width: 28px; height: 28px; display: block; }
 
         .typing-container {
             height: 20px; display: flex; justify-content: center; width: 100%;
@@ -146,12 +152,12 @@
             border-right: 2px solid var(--accent-color); width: 0;
         }
 
-        @keyframes typing { from { width: 0 } to { width: 185px } }
+        @keyframes typing { from { width: 0 } to { width: 210px } }
         @keyframes blink { 50% { border-color: transparent } }
         @keyframes hide-cursor { to { border-right: none } }
 
         .order-btn { 
-            margin-top: 30px; padding: 12px 28px; background: transparent; 
+            margin-top: 25px; padding: 12px 28px; background: transparent; 
             border: 1.5px solid var(--text-color); border-radius: 25px; 
             color: var(--text-color); text-decoration: none; font-size: 14px; 
             font-weight: bold; opacity: 0; pointer-events: none; transition: opacity 1s ease; 
@@ -161,8 +167,7 @@
 
         .footer-link { 
             margin-top: 15px; text-decoration: none; color: var(--text-color); 
-            font-size: 12px; opacity: 0.5; display: none; letter-spacing: 1px;
-            text-transform: none;
+            font-size: 11px; opacity: 0.5; display: none; letter-spacing: 1px;
         }
     </style>
 </head>
@@ -177,13 +182,15 @@
 
     <div class="container" id="player-container">
         
-        <video id="media" src="video.mp4" playsinline preload="auto"></video>
+        <div class="video-wrapper">
+            <video id="media" src="video.mp4" playsinline preload="auto"></video>
+        </div>
         
         <canvas id="visualizer"></canvas>
         
         <div class="play-wrapper">
-            <svg class="progress-ring" width="90" height="90">
-                <circle class="progress-ring__circle" stroke-width="4" fill="transparent" r="40" cx="45" cy="45"/>
+            <svg class="progress-ring" width="80" height="80">
+                <circle class="progress-ring__circle" stroke-width="4" fill="transparent" r="36" cx="40" cy="40"/>
             </svg>
             <button class="play-btn" id="btn">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" fill="currentColor"/></svg>
@@ -191,7 +198,7 @@
         </div>
 
         <div class="typing-container">
-            <p id="status" class="typing-text">Звучат моменты...</p>
+            <p id="status" class="typing-text">Смотрим моменты...</p>
         </div>
         
     </div>
@@ -210,11 +217,12 @@
         const orderBtn = document.getElementById('order-btn');
         const footerText = document.getElementById('footer-text');
         const circle = document.querySelector('.progress-ring__circle');
-        const circumference = 2 * Math.PI * 40;
+        const circumference = 2 * Math.PI * 36;
 
         const playSVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>';
         const pauseSVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" fill="currentColor"/></svg>';
         const replaySVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z" fill="currentColor"/></svg>';
+        
         let audioCtx, analyser, source, dataArray;
         let isReplay = false;
 
@@ -229,8 +237,10 @@
         }
 
         media.ontimeupdate = () => {
-            const percent = (media.currentTime / media.duration) * 100;
-            setProgress(percent);
+            if (media.duration) {
+                const percent = (media.currentTime / media.duration) * 100;
+                setProgress(percent);
+            }
         };
 
         function startTyping(text = "Смотрим моменты...") {
@@ -239,7 +249,7 @@
             status.style.borderRight = '2px solid var(--accent-color)';
             status.offsetHeight; 
             status.style.animation = `
-                typing 3s steps(18, end) forwards, 
+                typing 3s steps(20, end) forwards, 
                 blink 0.5s step-end 3s 3, 
                 hide-cursor 0s forwards 4.5s
             `;
@@ -254,7 +264,7 @@
                 setTimeout(() => {
                     playerContainer.style.opacity = '1';
                     initAudioContext();
-                    media.play();
+                    media.play().catch(e => console.log("Нужен клик"));
                     startTyping();
                 }, 100);
             }, 600);
@@ -262,16 +272,12 @@
 
         function initAudioContext() {
             if (!audioCtx) {
-                // Создаем контекст при первом клике пользователя (требование браузеров)
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 analyser = audioCtx.createAnalyser();
-                
-                // Подключаем аудиодорожку видео к анализатору
                 source = audioCtx.createMediaElementSource(media);
                 source.connect(analyser);
                 analyser.connect(audioCtx.destination);
-                
-                analyser.fftSize = 128;
+                analyser.fftSize = 64; // Уменьшил для производительности
                 dataArray = new Uint8Array(analyser.frequencyBinCount);
                 draw();
             }
@@ -289,8 +295,7 @@
                     media.play();
                     btn.innerHTML = pauseSVG;
                     startTyping(); 
-                }
-                else { 
+                } else { 
                     media.pause();
                     btn.innerHTML = playSVG;
                     status.innerText = 'Пауза'; 
@@ -304,20 +309,22 @@
 
         function draw() {
             requestAnimationFrame(draw);
-            if (!analyser) return;
+            if (!analyser || media.paused) return; // Не рисуем, если на паузе (экономим ресурсы)
             analyser.getByteFrequencyData(dataArray);
             canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
-            const barWidth = (canvas.width / dataArray.length) * 2.5;
+            
+            const barWidth = (canvas.width / dataArray.length) * 2;
             let x = 0;
             for(let i = 0; i < dataArray.length; i++) {
-                const barHeight = dataArray[i] / 2.5;
+                const barHeight = dataArray[i] / 4;
                 canvasCtx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-color');
-                canvasCtx.beginPath();
                 const y = (canvas.height - barHeight) / 2;
-                if (canvasCtx.roundRect) { 
-                    canvasCtx.roundRect(x, y, barWidth - 4, barHeight, 5);
-                }
-                else { 
+                
+                // Рисуем скругленные бары
+                canvasCtx.beginPath();
+                if (canvasCtx.roundRect) {
+                    canvasCtx.roundRect(x, y, barWidth - 4, barHeight, 4);
+                } else {
                     canvasCtx.rect(x, y, barWidth - 4, barHeight);
                 }
                 canvasCtx.fill();
