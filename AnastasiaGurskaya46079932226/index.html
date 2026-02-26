@@ -125,8 +125,8 @@
         .play-btn { 
             position: absolute;
             top: 7.5px; left: 7.5px;
-            width: 75px; height: 75px;
-background: var(--text-color); 
+            width: 75px; height: 75px; 
+            background: var(--text-color); 
             border-radius: 50%; 
             border: none; cursor: pointer; color: var(--bg-color); 
             display: flex; align-items: center; justify-content: center; 
@@ -213,7 +213,7 @@ background: var(--text-color);
         const circumference = 2 * Math.PI * 40;
 
         const playSVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>';
-const pauseSVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" fill="currentColor"/></svg>';
+        const pauseSVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" fill="currentColor"/></svg>';
         const replaySVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z" fill="currentColor"/></svg>';
         let audioCtx, analyser, source, dataArray;
         let isReplay = false;
@@ -238,11 +238,11 @@ const pauseSVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><p
             status.style.animation = 'none';
             status.style.borderRight = '2px solid var(--accent-color)';
             status.offsetHeight; 
-            status.style.animation = 
+            status.style.animation = `
                 typing 3s steps(18, end) forwards, 
                 blink 0.5s step-end 3s 3, 
                 hide-cursor 0s forwards 4.5s
-            ;
+            `;
         }
 
         function unlockMemories() {
@@ -310,7 +310,7 @@ const pauseSVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><p
             const barWidth = (canvas.width / dataArray.length) * 2.5;
             let x = 0;
             for(let i = 0; i < dataArray.length; i++) {
-const barHeight = dataArray[i] / 2.5;
+                const barHeight = dataArray[i] / 2.5;
                 canvasCtx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-color');
                 canvasCtx.beginPath();
                 const y = (canvas.height - barHeight) / 2;
