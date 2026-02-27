@@ -181,7 +181,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 15px; /* Немного увеличил отступ для баланса */
         }
 
         /* Эквалайзер */
@@ -191,30 +191,6 @@
             border-radius: 8px;
             display: block;
         }
-
-        /* Статус-текст — точно как в аудио-версии */
-        .typing-container {
-            height: 20px;
-            display: flex;
-            justify-content: center;
-            width: 100%;
-            overflow: visible;
-        }
-        .typing-text {
-            font-size: 11px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            opacity: 0.7;
-            display: inline-block;
-            overflow: hidden;
-            white-space: nowrap;
-            border-right: 2px solid var(--accent);
-            width: 0;
-        }
-
-        @keyframes typing      { from { width: 0 } to { width: 200px } }
-        @keyframes blink       { 50% { border-color: transparent } }
-        @keyframes hide-cursor { to { border-right: none } }
 
         /* Кнопка заказа */
         .order-btn {
@@ -270,10 +246,6 @@
     <div class="bottom-panel" id="bottomPanel">
         <canvas id="visualizer"></canvas>
 
-        <div class="typing-container">
-            <p id="statusText" class="typing-text">Смотри и вспоминай...</p>
-        </div>
-
         <a href="https://www.instagram.com/foton.mag/" target="_blank" class="order-btn" id="orderBtn">ЗАКАЗАТЬ ПОСТЕР</a>
         <p class="footer-text">С любовью от @foton.mag</p>
     </div>
@@ -283,7 +255,6 @@
     const video       = document.getElementById('video');
     const bigPlay     = document.getElementById('bigPlay');
     const progressBar = document.getElementById('progressBar');
-    const status      = document.getElementById('statusText');
     const orderBtn    = document.getElementById('orderBtn');
     const heartScreen = document.getElementById('heart-screen');
     const main        = document.getElementById('main');
@@ -292,17 +263,14 @@
     const videoWrap   = document.getElementById('videoWrap');
     const bottomPanel = document.getElementById('bottomPanel');
 
-    // Синхронизируем ширину панели с видео
     function syncWidth() {
         const w = videoWrap.getBoundingClientRect().width;
         if (w > 0) bottomPanel.style.width = w + 'px';
     }
     window.addEventListener('resize', syncWidth);
 
-    // Тема
     document.getElementById('themeBtn').onclick = () => document.body.classList.toggle('light');
 
-    // ── Эквалайзер ──
     let audioCtx, analyser, source, dataArray;
 
     function initEqualizer() {
@@ -344,23 +312,8 @@
         }
     }
 
-    // ── Анимация печати (как в аудио-версии) ──
-    function startTyping() {
-        status.innerText = 'Смотри и вспоминай...';
-        status.style.animation = 'none';
-        status.style.borderRight = '2px solid var(--accent)';
-        status.style.width = '0';
-        status.offsetHeight; // reflow
-        status.style.animation = `
-            typing 3s steps(22, end) forwards,
-            blink 0.5s step-end 3s 3,
-            hide-cursor 0s forwards 4.5s
-        `;
-    }
-
     function showOrderBtn() { orderBtn.classList.add('show'); }
 
-    // ── Открытие плеера ──
     function unlock() {
         heartScreen.classList.add('hide');
         setTimeout(() => {
@@ -369,7 +322,6 @@
             requestAnimationFrame(() => requestAnimationFrame(() => {
                 main.classList.add('visible');
                 syncWidth();
-                startTyping();
                 video.muted = false;
                 const p = video.play();
                 if (p) {
@@ -385,7 +337,6 @@
         }, 700);
     }
 
-    // ── Play / Pause ──
     function togglePlay() {
         if (video.ended) {
             video.currentTime = 0;
@@ -401,7 +352,6 @@
 
     video.onplay = () => {
         bigPlay.classList.add('hidden');
-        startTyping();
         initEqualizer();
         if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
     };
@@ -410,10 +360,6 @@
         if (!video.ended) {
             bigPlay.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>';
             bigPlay.classList.remove('hidden');
-            status.innerText = 'Пауза';
-            status.style.animation = 'none';
-            status.style.borderRight = 'none';
-            status.style.width = 'auto';
             showOrderBtn();
         }
     };
@@ -425,10 +371,6 @@
     video.onended = () => {
         bigPlay.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>';
         bigPlay.classList.remove('hidden');
-        status.innerText = 'Посмотреть ещё раз';
-        status.style.animation = 'none';
-        status.style.borderRight = 'none';
-        status.style.width = 'auto';
         showOrderBtn();
     };
 </script>
