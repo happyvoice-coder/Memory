@@ -7,43 +7,40 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FF1493' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M23 19C23 20.1046 22.1046 21 21 21H3C1.89543 21 1 20.1046 1 19V8C1 6.89543 1.89543 6 3 6H7L9 3H15L17 6H21C22.1046 6 23 6.89543 23 8V19Z'/><circle cx='12' cy='13' r='4'/></svg>">
     
     <style>
-    html, body {
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        overflow-x: hidden; /* Запрещает ездить влево-вправо */
-    }
     body { 
+        margin: 0; 
+        padding: 0; 
         display: flex; 
         justify-content: center; 
         align-items: center; 
         min-height: 100vh; 
-        background-color: #FF1493; /* Тот самый ярко-розовый */
+        background-color: #FF1493; 
         color: white; 
-        font-family: 'Arial Black', sans-serif; 
-        text-align: center; 
+        font-family: 'Arial Black', 'Helvetica Inserat', 'Arial Bold', sans-serif; 
+        text-align: center;
+        overflow-x: hidden; /* Чтобы не ездило влево-вправо */
     }
     .container { 
         padding: 20px; 
-        width: 100%;
-        box-sizing: border-box; /* Чтобы отступы не раздували экран */
+        max-width: 100%; /* Ограничиваем контент шириной экрана */
+        box-sizing: border-box;
     }
     h1 { 
-        font-size: 12vw; /* Размер букв зависит от ширины экрана */
+        font-size: 4.5rem; 
         margin: 0 0 15px 0; 
         text-transform: uppercase; 
+        letter-spacing: 1px; 
         color: #FFFFFF; 
         line-height: 1;
-        word-wrap: break-word; /* Если совсем не влезет — перенесет */
+        -webkit-text-stroke: 1px #FFFFFF;
     }
     p { 
-        font-size: 1.1rem; 
+        font-size: 1.3rem; 
         margin-bottom: 35px; 
         color: #FFFFFF;
         opacity: 0.95; 
         font-family: sans-serif;
         font-weight: normal;
-        line-height: 1.4;
     }
     .btn { 
         display: inline-block; 
@@ -53,16 +50,19 @@
         text-decoration: none; 
         border-radius: 35px; 
         font-weight: bold; 
-        font-size: 1rem;
+        font-size: 1.1rem;
         transition: 0.3s; 
         font-family: sans-serif;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+    }
+    .btn:hover { 
+        transform: scale(1.05) translateY(-2px); 
+        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
     }
     .logo { 
+        font-size: 3.5rem; 
         margin-bottom: 15px; 
-    }
-    .logo svg {
-        max-width: 80px;
-        height: auto;
+        display: block;
     }
 </style>
 </head>
