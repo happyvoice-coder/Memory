@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>Перенаправление...</title>
     <script>
-        // Берет текущий путь (например, /ORD123/) и добавляет к новому домену
-        var newUrl = "https://fotonmag.ru" + window.location.pathname;
-        window.location.replace(newUrl); 
+        var currentPath = window.location.pathname; 
+        window.location.href = "https://fotonmag.ru" + currentPath;
     </script>
 </head>
+<body>
+    <p>Переходим на новый адрес...</p>
+</body>
 </html>
